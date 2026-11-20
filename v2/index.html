@@ -71,6 +71,7 @@ pre{white-space:pre-wrap;font:13px/1.45 inherit;background:#fbfcfd;border:1px so
 </header>
 <nav id="reiter"></nav>
 <main id="inhalt"></main>
+<script src="zugaenge.js"></script>
 <script>
 "use strict";
 /* ---------- Zugang ---------- */
@@ -799,36 +800,46 @@ function entwurfRuecksprache(name) {
     "Eine kurze Antwort genügt, dann können wir Sie umgehend anbieten.\n\n" +
     "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
 }
-/* ---------- Start ---------- */
+/* ---------- Zugang ---------- */
+async function zugangLoesen(name, passwort) {
+  const konten = (typeof BENUTZER !== "undefined" && BENUTZER) || [];
+  const b = konten.find(x => x.n === String(name || "").trim().toLowerCase());
+  if (!b) throw new Error("Konto gibt es nicht. Möglich sind: " + konten.map(x => x.n).join(", "));
+  const k = await keyAus(passwort, b.salt, b.iter);
+  let klar;
+  try { klar = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64d(b.iv) }, k, b64d(b.ct)); }
+  catch (e) { throw new Error("Passwort stimmt nicht."); }
+  return new TextDecoder().decode(klar);
+}
 function tor(ml) {
+  const konten = (typeof BENUTZER !== "undefined" && BENUTZER) || [];
+  const letztes = localStorage.getItem("zk_ben") || "tobias";
   q("#inhalt").innerHTML = `<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>
     <p>Zugang nur für freigegebene Mitarbeiter. Die Daten liegen verschlüsselt; ohne Passwort ist nichts lesbar.</p>
-    <label>Konto</label><input id="ben" value="tobias" autocomplete="username">
+    <label>Konto</label><input id="ben" list="kontenliste" value="${esc(letztes)}" autocomplete="username">
+    <datalist id="kontenliste">${konten.map(x => `<option>${esc(x.n)}</option>`).join("")}</datalist>
     <label>Passwort</label><input id="pw" type="password" autocomplete="current-password">
     <div class="meld" id="fehler">${esc(ml || "")}</div>
-    <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div></div>`;
-  q("#los").onclick = () => start(q("#pw").value);
-  q("#pw").addEventListener("keydown", e => { if (e.key === "Enter") start(q("#pw").value); });
+    <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div>
+    <p style="font-size:12px;color:#6b7785">Konten: ${konten.map(x => esc(x.n)).join(", ")} · jedes Konto hat sein eigenes Passwort.</p></div>`;
+  const an = () => start(q("#ben").value, q("#pw").value);
+  q("#los").onclick = an;
+  q("#pw").addEventListener("keydown", e => { if (e.key === "Enter") an(); });
   q("#pw").focus();
-}
-async function start(passwort) {
+}async function start(name, passwort) {
   try {
-    await anmelden(passwort);
-    sessionStorage.setItem("zk_pass", passwort);
+    const master = await zugangLoesen(name, passwort);
+    await anmelden(master);
+    sessionStorage.setItem("zk_master", master);
+    localStorage.setItem("zk_ben", String(name || "").trim().toLowerCase());
     zeichne();
   } catch (e) {
-    q("#inhalt").innerHTML = `<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>
-      <label>Konto</label><input id="ben" value="tobias">
-      <label>Passwort</label><input id="pw" type="password">
-      <div class="meld">${esc(e.message)}</div>
-      <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div></div>`;
-    q("#los").onclick = () => start(q("#pw").value);
-    q("#pw").addEventListener("keydown", ev => { if (ev.key === "Enter") start(q("#pw").value); });
+    tor(e.message);
   }
-}
-const gemerkt = sessionStorage.getItem("zk_pass");
-if (gemerkt) start(gemerkt); else tor();
-if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {})); }
+}const gemerkt = sessionStorage.getItem("zk_master");
+if (gemerkt && typeof schluessel !== "undefined" && daten) zeichne();
+else if (gemerkt) anmelden(gemerkt).then(zeichne).catch(() => tor());
+else tor();if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {})); }
 </script>
 </body>
 </html>

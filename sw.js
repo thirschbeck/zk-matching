@@ -1,6 +1,6 @@
 /* ZK Stellenmatching · Service Worker: nur die Huelle cachen, Daten immer frisch */
-const CACHE = "zk-matching-v7";
-const HUELLE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "zk-matching-v8";
+const HUELLE = ["./", "./index.html", "./zugaenge.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(HUELLE)).then(() => self.skipWaiting()));
