@@ -509,7 +509,7 @@ function verdrahten() {
 function oeffne(html) {
   const alt = q(".tuch");
   if (alt) alt.remove();
-  if (html) document.body.insertAdjacentHTML("beforeend", html);
+  if (html) { document.body.insertAdjacentHTML("beforeend", html); verdrahten(); }
 }
 async function aktualisieren() {
   setFuss("Lade …");
