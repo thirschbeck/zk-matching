@@ -119,11 +119,38 @@ async function lege(url, huelle) {
 }
 /* Lebensläufe liegen in eigenen Speichern – so bleibt der Hauptspeicher klein und schnell. */
 function cvName(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60); }
-async function cvLegen(name, inhalt) { return lege(URL_CV + cvName(name), await verschluesseln(inhalt, schluessel)); }
+const CV_STUECK = 600000;   /* Zeichen je Speicher – ein Wert darf rund 1 MB groß sein */
+async function cvLegen(name, inhalt) {
+  const b64 = inhalt.b64 || "";
+  const teile = Math.max(1, Math.ceil(b64.length / CV_STUECK));
+  let ok = true;
+  for (let i = 1; i <= teile; i++) {
+    const stueck = { name: inhalt.name, typ: inhalt.typ, b64: b64.slice((i - 1) * CV_STUECK, i * CV_STUECK) };
+    if (teile > 1) { stueck.teil = i; stueck.teile = teile; }
+    const ziel = URL_CV + cvName(name) + (teile > 1 ? "-" + i : "");
+    const r = await lege(ziel, await verschluesseln(stueck, schluessel));
+    if (r !== 200) ok = false;
+  }
+  return ok;
+}
 async function cvHolen(name, passwort) {
   const h = await hole(URL_CV + cvName(name));
-  if (!h) return null;
-  return entschluesseln(h, passwort).catch(() => null);
+  if (h) {
+    const d = await entschluesseln(h, passwort).catch(() => null);
+    if (d && d.b64) return d;
+  }
+  const kopf = await hole(URL_CV + cvName(name) + "-1");
+  if (!kopf) return null;
+  const d1 = await entschluesseln(kopf, passwort).catch(() => null);
+  if (!d1 || !d1.teile) return null;
+  let b64 = d1.b64 || "";
+  for (let i = 2; i <= d1.teile; i++) {
+    const hi = await hole(URL_CV + cvName(name) + "-" + i);
+    const di = hi ? await entschluesseln(hi, passwort).catch(() => null) : null;
+    if (!di) return null;
+    b64 += di.b64 || "";
+  }
+  return { name: d1.name, typ: d1.typ, b64: b64 };
 }
 async function anmelden(passwort) {
   const h = await hole(URL_DATEN);
