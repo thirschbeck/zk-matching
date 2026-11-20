@@ -2,11 +2,11 @@
 function zeichne() {
   q("#reiter").innerHTML = REITER.map(([k, t]) => `<button data-t="${k}" class="${k === tab ? "aktiv" : ""}">${esc(t)}</button>`).join("");
   q("#stand").textContent = (daten && daten.stand ? "Stand " + daten.stand : "") + " · " + KM_MAX + " km · " +
-    (daten && daten.kennzahlen ? daten.kennzahlen.map(k => k[0] + " " + k[1]).join(" · ") : "") +
+    kzListe().slice(0, 4).map(k => k[0] + " " + k[1]).join(" · ") +
     (neukunden && neukunden.stand ? " · Neukunden-Blatt " + new Date(neukunden.stand).toLocaleDateString("de-DE") : "");
   q("#werkzeuge").innerHTML = `<button data-h="neu">Aktualisieren</button><button data-h="bm">Abmelden</button>`;
   q("#inhalt").innerHTML = `<div class="such"><input id="suchfeld" placeholder="Suchen (Name, Ort, Kunde, Rolle …)" value="${esc(suche)}"></div>
-    <div class="kpi">${(daten.kennzahlen || []).map(k => `<div><div class="n">${esc(k[1])}</div><div class="l">${esc(k[0])}</div></div>`).join("")}</div>
+    <div class="kpi">${kzListe().map(k => `<div><div class="n">${esc(k[1])}</div><div class="l">${esc(k[0])}</div></div>`).join("")}</div>
     <div class="fuss" id="fuss"></div><div id="liste"></div>`;
   verdrahten();
   liste();

@@ -72,3 +72,9 @@ function passtSuche(z) {
 function kopiere(text) {
   navigator.clipboard.writeText(text).then(() => setFuss("Kopiert – kann eingefügt werden."), () => setFuss("Kopieren ging nicht, bitte Text markieren."));
 }
+function kzListe() {
+  const k = daten && daten.kennzahlen;
+  if (!k) return [];
+  if (Array.isArray(k)) return k.map(x => [x[0], x[1]]);
+  return Object.entries(k).map(([a, b]) => [a.replace(/_/g, " "), b]);
+}
