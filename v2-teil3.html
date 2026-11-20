@@ -15,7 +15,7 @@ function verdrahten() {
   qa("#reiter button").forEach(b => b.onclick = () => { tab = b.dataset.t; zeichne(); });
   qa("[data-h]").forEach(b => b.onclick = () => {
     const h = b.dataset.h;
-    if (h === "bm") { sessionStorage.removeItem("zk_pass"); location.reload(); }
+    if (h === "bm") { sessionStorage.removeItem("zk_pass"); sessionStorage.removeItem("zk_master"); location.reload(); }
     else if (h === "neu") location.reload();
     else if (h === "zu") oeffne(null);
   });
@@ -33,6 +33,7 @@ function liste() {
   else if (tab === "nachfass") ziel.innerHTML = ansichtNachfass();
   else if (tab === "regel") ziel.innerHTML = ansichtRegel();
   else ziel.innerHTML = ansichtAuswertung();
+  verdrahtenListe();
   verdrahten();
 }
 function kopfLeiste(arten) {
