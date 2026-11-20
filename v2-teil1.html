@@ -78,6 +78,7 @@ const BUCKET = "HuCDKH1zjs9QPg6yTPeVqH";
 const URL_DATEN = "https://kvdb.io/" + BUCKET + "/zk-app-daten";
 const URL_STATUS = "https://kvdb.io/" + BUCKET + "/zk-app-status";
 const URL_NEU = "https://kvdb.io/" + BUCKET + "/zk-app-neukunden";
+const URL_CV = "https://kvdb.io/" + BUCKET + "/zk-cv-";
 const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
 let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
@@ -115,6 +116,14 @@ async function lege(url, huelle) {
   const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(huelle) });
   return r.ok;
 }
+/* Lebensläufe liegen in eigenen Speichern – so bleibt der Hauptspeicher klein und schnell. */
+function cvName(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60); }
+async function cvLegen(name, inhalt) { return lege(URL_CV + cvName(name), await verschluesseln(inhalt, schluessel)); }
+async function cvHolen(name, passwort) {
+  const h = await hole(URL_CV + cvName(name));
+  if (!h) return null;
+  return entschluesseln(h, passwort).catch(() => null);
+}
 async function anmelden(passwort) {
   const h = await hole(URL_DATEN);
   if (!h) throw new Error("Die Daten sind gerade nicht erreichbar.");
@@ -133,6 +142,12 @@ async function anmelden(passwort) {
 }
 async function statusSpeichern() {
   status.stand = Date.now();
+  /* Leere Profilzeilen gar nicht erst mitschleppen */
+  Object.keys(status.profil || {}).forEach(k => {
+    const p = status.profil[k] || {};
+    const sinnvoll = Object.keys(p).some(x => x !== "_t" && p[x] !== null && p[x] !== "" && p[x] !== undefined);
+    if (!sinnvoll) delete status.profil[k];
+  });
   const ok = await lege(URL_STATUS, await verschluesseln(status, schluessel));
   setFuss(ok ? "Gespeichert " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "Speichern fehlgeschlagen – bitte nochmal.");
   return ok;
