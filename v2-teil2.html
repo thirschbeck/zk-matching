@@ -30,7 +30,8 @@ const kPerson = name => String(name || "").toLowerCase().replace(/[^a-z0-9äöü
 function idTabelle() { status.ids = status.ids || {}; status.idNr = status.idNr || 0; return status.ids; }
 function idVon(name) {
   const k = kPerson(name), tab = idTabelle(), p = status.profil[k];
-  if (p && p.id) { if (tab[k] !== p.id) tab[k] = p.id; return p.id; }
+  const ausCockpit = p && (p.id || (p.cockpit && p.cockpit.kennung));
+  if (ausCockpit) { if (tab[k] !== ausCockpit) tab[k] = ausCockpit; return ausCockpit; }
   if (!tab[k]) { tab[k] = "neu-" + new Date().getFullYear() + "-" + String(++status.idNr).padStart(3, "0"); }
   return tab[k];
 }
@@ -89,7 +90,7 @@ function kmZahl(z) { const k = parseFloat(String(R(z, "km")).replace(",", "."));
 function imUmkreis(z) { const k = kmZahl(z); return isFinite(k) && k <= KM_MAX; }
 function kmUnklar(z) { return !isFinite(kmZahl(z)); }
 function nachKm(a, b) { const ka = kmZahl(a), kb = kmZahl(b); return (isFinite(ka) ? ka : Infinity) - (isFinite(kb) ? kb : Infinity); }
-const FASSUNG = "20.11.2026j";
+const FASSUNG = "20.11.2026k";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
