@@ -93,7 +93,12 @@ Object.defineProperty(window, "filter", {
 });
 
 /* ---------- Krypto ---------- */
-const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64e = b => {   /* stueckweise umwandeln – "..."-Aufrufe brechen bei grossen Dateien ab */
+  const u = new Uint8Array(b), S = 0x8000;
+  let s = "";
+  for (let i = 0; i < u.length; i += S) s += String.fromCharCode.apply(null, u.subarray(i, i + S));
+  return btoa(s);
+};
 const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 async function keyAus(passwort, saltB64, iter) {
   const grund = await crypto.subtle.importKey("raw", new TextEncoder().encode(passwort), "PBKDF2", false, ["deriveKey"]);
@@ -298,7 +303,7 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026g";
+const FASSUNG = "20.11.2026h";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
@@ -824,9 +829,11 @@ function bindProfil(name) {
       const rohb64 = String(fr.result).split(",")[1];
       const ok = await cvLegen(name, { name: f.name, typ: f.type, b64: rohb64 });
       const p = profilLesen(name);
-      p.cv = { name: f.name, typ: f.type, groesse: f.size, stand: new Date().toISOString().slice(0, 10) };
-      p.profil_angefordert = new Date().toISOString();
-      p._t = Date.now(); statusSpeichern();
+      if (ok) {   /* erst nach erfolgreicher Ablage eintragen */
+        p.cv = { name: f.name, typ: f.type, groesse: f.size, stand: new Date().toISOString().slice(0, 10) };
+        p.profil_angefordert = new Date().toISOString();
+        p._t = Date.now(); statusSpeichern();
+      }
       setFuss(ok ? "Lebenslauf hinterlegt – das Profil wird jetzt geschrieben." : "Lebenslauf konnte nicht abgelegt werden – bitte nochmal.");
       oeffne(null); blattProfil(name);
     };

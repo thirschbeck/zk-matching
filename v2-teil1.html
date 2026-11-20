@@ -93,7 +93,12 @@ Object.defineProperty(window, "filter", {
 });
 
 /* ---------- Krypto ---------- */
-const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64e = b => {   /* stueckweise umwandeln – "..."-Aufrufe brechen bei grossen Dateien ab */
+  const u = new Uint8Array(b), S = 0x8000;
+  let s = "";
+  for (let i = 0; i < u.length; i += S) s += String.fromCharCode.apply(null, u.subarray(i, i + S));
+  return btoa(s);
+};
 const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 async function keyAus(passwort, saltB64, iter) {
   const grund = await crypto.subtle.importKey("raw", new TextEncoder().encode(passwort), "PBKDF2", false, ["deriveKey"]);
