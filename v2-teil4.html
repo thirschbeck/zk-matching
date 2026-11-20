@@ -1,8 +1,9 @@
 /* ---------- Arbeitsliste ---------- */
 function ansichtArbeit() {
   const alle = (daten.arbeitsliste || []).filter(passtSuche);
-  const zs = alle.filter(z => !filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z)));
+  const zs = alle.filter(z => (!filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z))) && passtBearbeiter(R(z, "Bewerber"), z));
   let h = kopfLeiste(["Blue Collar", "White Collar"]);
+  h += kopfBearbeiter(alle);
   h += `<h2>Arbeitsliste · ${zs.length} Bewerber</h2>`;
   if (!zs.length) h += `<div class="karte">Keine Bewerber für diese Auswahl.</div>`;
   zs.forEach(z => {
@@ -11,7 +12,7 @@ function ansichtArbeit() {
     h += `<div class="karte">
       <div class="titel">${esc(name)}</div>
       <div class="zeile">${esc(R(z, "Wohnort"))} · ${esc(R(z, "Zielrolle / Beruf"))} · ${esc(R(z, "Niederlassung"))} · im System seit ${esc(R(z, "im System seit"))}</div>
-      <div class="zeile">Bestand: ${esc(R(z, "Vorhandene Kunden"))} · Neukunden: ${esc(R(z, "Neukunden-Leads"))} · ${esc(R(z, "Nächster Schritt"))}${R(z, "Verantwortlicher") ? " · " + esc(R(z, "Verantwortlicher")) : " · Verantwortlicher fehlt"}</div>
+      <div class="zeile">Bestand: ${esc(R(z, "Vorhandene Kunden"))} · Neukunden: ${esc(R(z, "Neukunden-Leads"))} · ${esc(R(z, "Nächster Schritt"))}${R(z, "Verantwortlicher") ? " · " + esc(R(z, "Verantwortlicher")) : " · Verantwortlicher fehlt"}${bearbeiterVon(name, z) ? " · Bearbeiter: " + esc(bearbeiterVon(name, z)) : ""}</div>
       ${tagsAus(z, name)}
       ${offen.length ? `<div class="zeile"><b>Was fehlt:</b> ${esc(offen.join(", "))}</div>` : ""}
       <div class="knoepfe">
@@ -50,7 +51,9 @@ function ansichtMatching() {
   if (filter === "Blue Collar") zs = zs.filter(istBlue);
   if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
   if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
+  zs = zs.filter(z => passtBearbeiter(R(z, "Bewerber"), z));
   let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
+  h += kopfBearbeiter(daten.bestand || [], "Bearbeiter");
   h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
     <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung sortiert. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
   zs.forEach(z => {

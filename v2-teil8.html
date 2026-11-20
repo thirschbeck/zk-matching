@@ -38,7 +38,7 @@ function entwurfVorschlag(z) {
     "für Ihre Stelle „" + R(z, "unsere offene Stelle") + "\u201c in " + R(z, "Ort Einsatz") + " schlage ich Ihnen " + name + " vor.\n\n" +
     kriterienBlock(name, z) + "\n\n" +
     (p.profil ? "Zum Bewerber:\n" + p.profil + "\n\n" : "") +
-    "Der Bewerber ist verfügbar" + (p.verfuegbar ? " ab " + p.verfuegbar : "") + " und wohnt " + R(z, "Wohnort") + " (" + R(z, "km") + " km zum Einsatzort).\n\n" +
+    (p.verfuegbar ? "Verfügbarkeit: " + p.verfuegbar : "Die Verfügbarkeit wird noch geklärt") + ". Er wohnt in " + R(z, "Wohnort") + " (" + R(z, "km") + " km zum Einsatzort).\n\n" +
     "Sagen Sie mir kurz Bescheid, ob wir den Lebenslauf und die Unterlagen zusenden sollen – dann liegt alles umgehend bei Ihnen.\n\n" +
     "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
 }

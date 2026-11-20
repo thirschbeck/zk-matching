@@ -83,7 +83,14 @@ const URL_CV = "https://kvdb.io/" + BUCKET + "/zk-cv-";
 const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
 let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
-let tab = "arbeit", filter = null, suche = "";
+let tab = "arbeit", suche = "";
+/* Auswahl je Reiter getrennt halten - sonst wirkt ein Filter im naechsten Reiter weiter */
+const auswahlProReiter = {};
+Object.defineProperty(window, "filter", {
+  configurable: true,
+  get: () => auswahlProReiter[tab] || null,
+  set: v => { if (v) auswahlProReiter[tab] = v; else delete auswahlProReiter[tab]; }
+});
 
 /* ---------- Krypto ---------- */
 const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
@@ -261,10 +268,11 @@ function fehlendePunkte(name, z) {
   else if (!p.ausbildung_geprueft) aus.push("Ausbildung noch nicht geprüft");
   if (!p.taetigkeit) aus.push("Tätigkeit fehlt");
   else if (!p.taetigkeit_klar) aus.push("Tätigkeit nicht klar");
-  if (!p.studium && !p.ausbildung) aus.push("weder Ausbildung noch Studium");
-  if (!p.sap && !p.google && !p.m365) aus.push("keine IT-Kenntnisse (SAP/M365/Google)");
-  if (!p.spez) aus.push("keine Spezialisierung");
+  if (!p.studium && !p.ausbildung) aus.push("Ausbildung/Studium noch nicht erfragt");
+  if (!p.sap && !p.google && !p.m365) aus.push("IT-Kenntnisse noch nicht erfragt");
+  if (!p.spez) aus.push("Spezialisierung noch nicht erfragt");
   if (verteidigung(z) && !p.suep) aus.push("ZÜP/Ü2/SÜG fehlt (Verteidigung)");
+  else if (p.suep && p.suep_status !== "liegt vor") aus.push(p.suep + " " + (p.suep_status || "offen") + " – Nachweis noch nicht vorhanden");
   if (!p.cv) aus.push("kein Lebenslauf");
   if (!p.profil) aus.push("Profil noch nicht geschrieben");
   return aus;
@@ -290,7 +298,7 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026f";
+const FASSUNG = "20.11.2026g";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
@@ -352,6 +360,36 @@ function liste() {
   verdrahtenListe();
   verdrahten();
 }
+/* ---------- Bearbeiter-Filter (Angaben aus dem Cockpit-Block) ---------- */
+const bearbeiterProReiter = {};
+function bfil() { return bearbeiterProReiter[tab] || null; }
+function bfilSet(v) { if (v) bearbeiterProReiter[tab] = v; else delete bearbeiterProReiter[tab]; }
+function bearbeiterVon(name, z) {
+  const p = pr(name);
+  return (p.cockpit && p.cockpit.bearbeiter) ? String(p.cockpit.bearbeiter).trim() : "";
+}
+function bearbeiterListe(zeilen) {
+  const s = new Set();
+  zeilen.forEach(z => { const b = bearbeiterVon(R(z, "Bewerber"), z); if (b) s.add(b); });
+  return [...s].sort((a, b) => a.localeCompare(b, "de"));
+}
+function passtBearbeiter(name, z) {
+  const bf = bfil();
+  if (!bf) return true;
+  const b = bearbeiterVon(name, z);
+  return bf === "ohne" ? !b : b === bf;
+}
+function kopfBearbeiter(zeilen, titel) {
+  const namen = bearbeiterListe(zeilen);
+  const ohne = zeilen.some(z => !bearbeiterVon(R(z, "Bewerber"), z));
+  if (!namen.length && !ohne) return "";
+  const bf = bfil(), b = ["<div class=\"knoepfe\">"];
+  b.push(`<button class="k ${bf ? "hell" : ""}" data-bf="alle">${esc(titel || "Bearbeiter")}: alle</button>`);
+  namen.forEach(n => b.push(`<button class="k ${bf === n ? "" : "hell"}" data-bf="${esc(n)}">${esc(n)}</button>`));
+  if (ohne) b.push(`<button class="k ${bf === "ohne" ? "" : "hell"}" data-bf="ohne">ohne Bearbeiter</button>`);
+  b.push("</div>");
+  return b.join("");
+}
 function kopfLeiste(arten) {
   const b = ["<div class=\"knoepfe\">"];
   b.push(`<button class="k ${filter === null ? "" : "hell"}" data-f="alle">Alle</button>`);
@@ -384,8 +422,9 @@ function knopfZeile(z, art, id, name) {
 /* ---------- Arbeitsliste ---------- */
 function ansichtArbeit() {
   const alle = (daten.arbeitsliste || []).filter(passtSuche);
-  const zs = alle.filter(z => !filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z)));
+  const zs = alle.filter(z => (!filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z))) && passtBearbeiter(R(z, "Bewerber"), z));
   let h = kopfLeiste(["Blue Collar", "White Collar"]);
+  h += kopfBearbeiter(alle);
   h += `<h2>Arbeitsliste · ${zs.length} Bewerber</h2>`;
   if (!zs.length) h += `<div class="karte">Keine Bewerber für diese Auswahl.</div>`;
   zs.forEach(z => {
@@ -394,7 +433,7 @@ function ansichtArbeit() {
     h += `<div class="karte">
       <div class="titel">${esc(name)}</div>
       <div class="zeile">${esc(R(z, "Wohnort"))} · ${esc(R(z, "Zielrolle / Beruf"))} · ${esc(R(z, "Niederlassung"))} · im System seit ${esc(R(z, "im System seit"))}</div>
-      <div class="zeile">Bestand: ${esc(R(z, "Vorhandene Kunden"))} · Neukunden: ${esc(R(z, "Neukunden-Leads"))} · ${esc(R(z, "Nächster Schritt"))}${R(z, "Verantwortlicher") ? " · " + esc(R(z, "Verantwortlicher")) : " · Verantwortlicher fehlt"}</div>
+      <div class="zeile">Bestand: ${esc(R(z, "Vorhandene Kunden"))} · Neukunden: ${esc(R(z, "Neukunden-Leads"))} · ${esc(R(z, "Nächster Schritt"))}${R(z, "Verantwortlicher") ? " · " + esc(R(z, "Verantwortlicher")) : " · Verantwortlicher fehlt"}${bearbeiterVon(name, z) ? " · Bearbeiter: " + esc(bearbeiterVon(name, z)) : ""}</div>
       ${tagsAus(z, name)}
       ${offen.length ? `<div class="zeile"><b>Was fehlt:</b> ${esc(offen.join(", "))}</div>` : ""}
       <div class="knoepfe">
@@ -433,7 +472,9 @@ function ansichtMatching() {
   if (filter === "Blue Collar") zs = zs.filter(istBlue);
   if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
   if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
+  zs = zs.filter(z => passtBearbeiter(R(z, "Bewerber"), z));
   let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
+  h += kopfBearbeiter(daten.bestand || [], "Bearbeiter");
   h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
     <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung sortiert. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
   zs.forEach(z => {
@@ -594,6 +635,7 @@ function verdrahtenListe() {
     if (!b) return;
     const d = b.dataset;
     if (d.f !== undefined) { filter = d.f === "alle" ? null : d.f; liste(); return; }
+    if (d.bf !== undefined) { bfilSet(d.bf === "alle" ? null : d.bf); liste(); return; }
     if (d.g !== undefined) {
       const t = d.g.split("|"), p = pr(t[1]);
       if (p[t[2]] === "ja") delete p[t[2]]; else p[t[2]] = "ja";
@@ -872,7 +914,7 @@ function entwurfVorschlag(z) {
     "für Ihre Stelle „" + R(z, "unsere offene Stelle") + "\u201c in " + R(z, "Ort Einsatz") + " schlage ich Ihnen " + name + " vor.\n\n" +
     kriterienBlock(name, z) + "\n\n" +
     (p.profil ? "Zum Bewerber:\n" + p.profil + "\n\n" : "") +
-    "Der Bewerber ist verfügbar" + (p.verfuegbar ? " ab " + p.verfuegbar : "") + " und wohnt " + R(z, "Wohnort") + " (" + R(z, "km") + " km zum Einsatzort).\n\n" +
+    (p.verfuegbar ? "Verfügbarkeit: " + p.verfuegbar : "Die Verfügbarkeit wird noch geklärt") + ". Er wohnt in " + R(z, "Wohnort") + " (" + R(z, "km") + " km zum Einsatzort).\n\n" +
     "Sagen Sie mir kurz Bescheid, ob wir den Lebenslauf und die Unterlagen zusenden sollen – dann liegt alles umgehend bei Ihnen.\n\n" +
     "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
 }

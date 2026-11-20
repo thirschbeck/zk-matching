@@ -12,6 +12,7 @@ function verdrahtenListe() {
     if (!b) return;
     const d = b.dataset;
     if (d.f !== undefined) { filter = d.f === "alle" ? null : d.f; liste(); return; }
+    if (d.bf !== undefined) { bfilSet(d.bf === "alle" ? null : d.bf); liste(); return; }
     if (d.g !== undefined) {
       const t = d.g.split("|"), p = pr(t[1]);
       if (p[t[2]] === "ja") delete p[t[2]]; else p[t[2]] = "ja";

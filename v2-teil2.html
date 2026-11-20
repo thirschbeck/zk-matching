@@ -32,10 +32,11 @@ function fehlendePunkte(name, z) {
   else if (!p.ausbildung_geprueft) aus.push("Ausbildung noch nicht geprüft");
   if (!p.taetigkeit) aus.push("Tätigkeit fehlt");
   else if (!p.taetigkeit_klar) aus.push("Tätigkeit nicht klar");
-  if (!p.studium && !p.ausbildung) aus.push("weder Ausbildung noch Studium");
-  if (!p.sap && !p.google && !p.m365) aus.push("keine IT-Kenntnisse (SAP/M365/Google)");
-  if (!p.spez) aus.push("keine Spezialisierung");
+  if (!p.studium && !p.ausbildung) aus.push("Ausbildung/Studium noch nicht erfragt");
+  if (!p.sap && !p.google && !p.m365) aus.push("IT-Kenntnisse noch nicht erfragt");
+  if (!p.spez) aus.push("Spezialisierung noch nicht erfragt");
   if (verteidigung(z) && !p.suep) aus.push("ZÜP/Ü2/SÜG fehlt (Verteidigung)");
+  else if (p.suep && p.suep_status !== "liegt vor") aus.push(p.suep + " " + (p.suep_status || "offen") + " – Nachweis noch nicht vorhanden");
   if (!p.cv) aus.push("kein Lebenslauf");
   if (!p.profil) aus.push("Profil noch nicht geschrieben");
   return aus;
@@ -61,7 +62,7 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026f";
+const FASSUNG = "20.11.2026g";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }

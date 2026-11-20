@@ -42,6 +42,36 @@ function liste() {
   verdrahtenListe();
   verdrahten();
 }
+/* ---------- Bearbeiter-Filter (Angaben aus dem Cockpit-Block) ---------- */
+const bearbeiterProReiter = {};
+function bfil() { return bearbeiterProReiter[tab] || null; }
+function bfilSet(v) { if (v) bearbeiterProReiter[tab] = v; else delete bearbeiterProReiter[tab]; }
+function bearbeiterVon(name, z) {
+  const p = pr(name);
+  return (p.cockpit && p.cockpit.bearbeiter) ? String(p.cockpit.bearbeiter).trim() : "";
+}
+function bearbeiterListe(zeilen) {
+  const s = new Set();
+  zeilen.forEach(z => { const b = bearbeiterVon(R(z, "Bewerber"), z); if (b) s.add(b); });
+  return [...s].sort((a, b) => a.localeCompare(b, "de"));
+}
+function passtBearbeiter(name, z) {
+  const bf = bfil();
+  if (!bf) return true;
+  const b = bearbeiterVon(name, z);
+  return bf === "ohne" ? !b : b === bf;
+}
+function kopfBearbeiter(zeilen, titel) {
+  const namen = bearbeiterListe(zeilen);
+  const ohne = zeilen.some(z => !bearbeiterVon(R(z, "Bewerber"), z));
+  if (!namen.length && !ohne) return "";
+  const bf = bfil(), b = ["<div class=\"knoepfe\">"];
+  b.push(`<button class="k ${bf ? "hell" : ""}" data-bf="alle">${esc(titel || "Bearbeiter")}: alle</button>`);
+  namen.forEach(n => b.push(`<button class="k ${bf === n ? "" : "hell"}" data-bf="${esc(n)}">${esc(n)}</button>`));
+  if (ohne) b.push(`<button class="k ${bf === "ohne" ? "" : "hell"}" data-bf="ohne">ohne Bearbeiter</button>`);
+  b.push("</div>");
+  return b.join("");
+}
 function kopfLeiste(arten) {
   const b = ["<div class=\"knoepfe\">"];
   b.push(`<button class="k ${filter === null ? "" : "hell"}" data-f="alle">Alle</button>`);

@@ -83,7 +83,14 @@ const URL_CV = "https://kvdb.io/" + BUCKET + "/zk-cv-";
 const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
 let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
-let tab = "arbeit", filter = null, suche = "";
+let tab = "arbeit", suche = "";
+/* Auswahl je Reiter getrennt halten - sonst wirkt ein Filter im naechsten Reiter weiter */
+const auswahlProReiter = {};
+Object.defineProperty(window, "filter", {
+  configurable: true,
+  get: () => auswahlProReiter[tab] || null,
+  set: v => { if (v) auswahlProReiter[tab] = v; else delete auswahlProReiter[tab]; }
+});
 
 /* ---------- Krypto ---------- */
 const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
