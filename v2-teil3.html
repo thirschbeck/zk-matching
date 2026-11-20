@@ -1,0 +1,66 @@
+/* ---------- Aufbau ---------- */
+function zeichne() {
+  q("#reiter").innerHTML = REITER.map(([k, t]) => `<button data-t="${k}" class="${k === tab ? "aktiv" : ""}">${esc(t)}</button>`).join("");
+  q("#stand").textContent = (daten && daten.stand ? "Stand " + daten.stand : "") + " · " + KM_MAX + " km · " +
+    (daten && daten.kennzahlen ? daten.kennzahlen.map(k => k[0] + " " + k[1]).join(" · ") : "") +
+    (neukunden && neukunden.stand ? " · Neukunden-Blatt " + new Date(neukunden.stand).toLocaleDateString("de-DE") : "");
+  q("#werkzeuge").innerHTML = `<button data-h="neu">Aktualisieren</button><button data-h="bm">Abmelden</button>`;
+  q("#inhalt").innerHTML = `<div class="such"><input id="suchfeld" placeholder="Suchen (Name, Ort, Kunde, Rolle …)" value="${esc(suche)}"></div>
+    <div class="kpi">${(daten.kennzahlen || []).map(k => `<div><div class="n">${esc(k[1])}</div><div class="l">${esc(k[0])}</div></div>`).join("")}</div>
+    <div class="fuss" id="fuss"></div><div id="liste"></div>`;
+  verdrahten();
+  liste();
+}
+function verdrahten() {
+  qa("#reiter button").forEach(b => b.onclick = () => { tab = b.dataset.t; zeichne(); });
+  qa("[data-h]").forEach(b => b.onclick = () => {
+    const h = b.dataset.h;
+    if (h === "bm") { sessionStorage.removeItem("zk_pass"); location.reload(); }
+    else if (h === "neu") location.reload();
+    else if (h === "zu") oeffne(null);
+  });
+  const s = q("#suchfeld");
+  if (s) s.oninput = () => { suche = s.value.trim(); liste(); };
+}
+function liste() {
+  const ziel = q("#liste");
+  if (tab === "arbeit") ziel.innerHTML = ansichtArbeit();
+  else if (tab === "eingang") ziel.innerHTML = ansichtEingang();
+  else if (tab === "matching") ziel.innerHTML = ansichtMatching();
+  else if (tab === "neukunden") ziel.innerHTML = ansichtNeukunden();
+  else if (tab === "zulauf") ziel.innerHTML = ansichtZulauf();
+  else if (tab === "nachkontrolle") ziel.innerHTML = ansichtNachkontrolle();
+  else if (tab === "nachfass") ziel.innerHTML = ansichtNachfass();
+  else if (tab === "regel") ziel.innerHTML = ansichtRegel();
+  else ziel.innerHTML = ansichtAuswertung();
+  verdrahten();
+}
+function kopfLeiste(arten) {
+  const b = ["<div class=\"knoepfe\">"];
+  b.push(`<button class="k ${filter === null ? "" : "hell"}" data-f="alle">Alle</button>`);
+  arten.forEach(a => b.push(`<button class="k ${filter === a ? "" : "hell"}" data-f="${esc(a)}">${esc(a)}</button>`));
+  b.push("</div>");
+  return b.join("");
+}
+function tagsAus(z, name) {
+  const t = [];
+  t.push(`<span class="tag ${istBlue(z) ? "blue" : "white"}">${istBlue(z) ? "Blue Collar" : "White Collar"}</span>`);
+  if (verteidigung(z)) t.push(`<span class="tag rot">Verteidigung · ZÜP/Ü2/SÜG</span>`);
+  const p = pr(name), offen = fehlendePunkte(name, z);
+  t.push(offen.length === 0 ? `<span class="tag ok">Profil vollständig</span>` : `<span class="tag warn">${offen.length} Punkt(e) offen</span>`);
+  if (p.suep) t.push(`<span class="tag ${p.suep_status === "liegt vor" ? "ok" : "warn"}">${esc(p.suep)} ${esc(p.suep_status || "offen")}</span>`);
+  if (p.sap) t.push(`<span class="tag">SAP</span>`);
+  if (p.google) t.push(`<span class="tag">Google Workspace</span>`);
+  if (p.m365) t.push(`<span class="tag">M365</span>`);
+  if (p.spez) String(p.spez).split(",").map(s => s.trim()).filter(Boolean).slice(0, 4).forEach(s => t.push(`<span class="tag">${esc(s)}</span>`));
+  if (p.cv) t.push(`<span class="tag ok">Lebenslauf</span>`);
+  return `<div class="tags">${t.join("")}</div>`;
+}
+function knopfZeile(z, art, id, name) {
+  const b = [];
+  b.push(`<button class="k" data-p="${esc(name)}">Profil & Kriterien</button>`);
+  if (art === "arbeit") b.push(`<button class="k hell" data-mat="${esc(name)}">Matching zeigen</button>`);
+  if (art === "bestand") b.push(`<button class="k gruen" data-vor="${esc(id)}">Vorschlag erstellen</button>`);
+  b.push(`<button class="k hell" data-rs="${esc(name)}">Rücksprache</button>`);
+  return `<div class="knoepfe">${b.join("")}</div>`;
+}

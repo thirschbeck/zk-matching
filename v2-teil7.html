@@ -1,0 +1,131 @@
+/* ---------- Bewerberprofil ---------- */
+function passendeFuer(name) {
+  const n = String(name || "").toLowerCase();
+  return {
+    bestand: (daten.bestand || []).filter(z => String(R(z, "Bewerber")).toLowerCase() === n),
+    leads: (daten.leads || []).filter(z => String(R(z, "Bewerber")).toLowerCase() === n)
+  };
+}
+function blattProfil(name) {
+  const p = pr(name), z0 = (daten.bestand || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) ||
+    (daten.arbeitsliste || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) || {};
+  const passt = passendeFuer(name);
+  const jn = (id, wert, txt) => `<select id="${id}"><option value="">${txt}</option><option value="ja" ${wert === "ja" ? "selected" : ""}>ja</option></select>`;
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Profil & Kriterien · ${esc(name)}</h3>
+    <div class="hinweis">${esc(R(z0, "Zielrolle / Beruf"))} · ${esc(R(z0, "Wohnort"))} · ${verteidigung(z0) ? "Kunde Verteidigung – ZÜP/Ü2/SÜG nötig" : "ziviler Kunde"}</div>
+    <div class="feld">
+      <div><label>Ausbildung (Beruf, Abschluss, Jahr)</label><input id="pr_ausbildung" value="${esc(p.ausbildung || "")}"></div>
+      <div><label>Ausbildung geprüft</label>${jn("pr_ausbildung_geprueft", p.ausbildung_geprueft, "noch offen")}</div>
+      <div><label>Tätigkeit (klar beschrieben)</label><input id="pr_taetigkeit" value="${esc(p.taetigkeit || "")}"></div>
+      <div><label>Tätigkeit klar</label>${jn("pr_taetigkeit_klar", p.taetigkeit_klar, "noch offen")}</div>
+      <div><label>Studium abgeschlossen</label>${jn("pr_studium", p.studium, "nein / offen")}</div>
+      <div><label>Studienfach</label><input id="pr_studium_fach" value="${esc(p.studium_fach || "")}"></div>
+      <div><label>Zertifikate / Weiterbildungen</label><input id="pr_zert" value="${esc(p.zert || "")}"></div>
+      <div><label>Verfügbar ab</label><input id="pr_verfuegbar" value="${esc(p.verfuegbar || "")}"></div>
+    </div>
+    <label>IT-Kenntnisse</label>
+    <div class="knoepfe">
+      <button class="k ${p.sap ? "" : "hell"}" data-it="sap">SAP</button>
+      <button class="k ${p.google ? "" : "hell"}" data-it="google">Google Workspace</button>
+      <button class="k ${p.m365 ? "" : "hell"}" data-it="m365">M365</button>
+    </div>
+    <label>Spezialisierungen (mit Komma)</label>
+    <input id="pr_spez" value="${esc(p.spez || "")}" placeholder="Konstruktion, CATIA V4, CATIA V5, Avionik, SPS …">
+    <div class="feld">
+      <div><label>Sicherheitsüberprüfung (Verteidigung)</label>
+        <select id="pr_suep"><option value="">nicht nötig / offen</option>
+        ${["ZÜP", "Ü2", "SÜG"].map(s => `<option ${p.suep === s ? "selected" : ""}>${s}</option>`).join("")}</select></div>
+      <div><label>Stand der Überprüfung</label>
+        <select id="pr_suep_status"><option value="offen" ${p.suep_status === "offen" ? "selected" : ""}>beantragt/offen</option>
+        <option value="läuft" ${p.suep_status === "läuft" ? "selected" : ""}>läuft</option>
+        <option value="liegt vor" ${p.suep_status === "liegt vor" ? "selected" : ""}>liegt vor</option></select></div>
+    </div>
+    <label>Thema 1 (z. B. Gehaltsvorstellung, Wechselmotivation, Schichtbereitschaft)</label>
+    <input id="pr_thema1" value="${esc(p.thema1 || "")}" placeholder="Thema und Stand">
+    <label>Thema 2</label>
+    <input id="pr_thema2" value="${esc(p.thema2 || "")}" placeholder="Thema und Stand">
+    <label>Rücksprache mit dem Bewerber</label>
+    <textarea id="pr_rueck" placeholder="Was wurde besprochen, was ist zu klären?">${esc(p.rueck || "")}</textarea>
+    <label>Rücksprache am</label><input type="date" id="pr_rueck_am" value="${esc(p.rueck_am || "")}">
+    <label>Lebenslauf (PDF oder Word, bis ca. 1,5 MB)</label>
+    <input type="file" id="pr_cv" accept=".pdf,.doc,.docx,.rtf,.txt">
+    <div class="hinweis" id="cvstand">${p.cv ? "hinterlegt: " + esc(p.cv.name) + " (" + Math.round(p.cv.groesse / 1024) + " KB, " + esc(p.cv.stand || "") + ")" : "kein Lebenslauf hinterlegt"}</div>
+    <label>Profil für den Kunden (schreibt der Assistent aus dem Lebenslauf)</label>
+    <textarea id="pr_profil" style="min-height:180px">${esc(p.profil || "")}</textarea>
+    <div class="knoepfe">
+      <button class="k" data-prs="1">Speichern</button>
+      <button class="k gold" data-prf="1">${p.profil_angefordert ? "Profil wurde angefordert" : "Profil schreiben lassen"}</button>
+      <button class="k hell" data-prd="1">Kundenvorlage erstellen</button>
+      <button class="k hell" data-prr="1">Rücksprache-Mail</button>
+    </div>
+    <div class="hinweis">„Profil schreiben lassen" legt den Lebenslauf in die Warteschlange – das Profil steht dann hier, meist innerhalb einer Stunde.</div>
+    <h3 style="margin-top:16px">Passende Stellen (automatisch, ${KM_MAX} km)</h3>
+    ${(passt.bestand.length ? passt.bestand.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
+      <div class="zeile">${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
+      <div class="knoepfe"><button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
+      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`)}
+    ${passt.leads.length ? `<h3>Neukunden mit passender Stelle</h3>` + passt.leads.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(z, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(z, "Kunde A/B"))}</span></div>
+      <div class="zeile">${esc(R(z, "Anlass / Stelle"))} · Passung ${esc(R(z, "Passung"))}${R(z, "Ansprechpartner") ? " · " + esc(R(z, "Ansprechpartner")) : ""}</div>
+      <div class="knoepfe">${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+      ${/^a/i.test(String(R(z, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(z))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("") : ""}
+    <div class="knoepfe"><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => bindProfil(name));
+}
+function bindProfil(name) {
+  qa("[data-it]").forEach(b => b.onclick = () => { const p = pr(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(name); });
+  q("#pr_cv").onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (f.size > 1600000) { setFuss("Die Datei ist größer als 1,5 MB – bitte verkleinern."); return; }
+    const fr = new FileReader();
+    fr.onload = () => {
+      const p = pr(name);
+      p.cv = { name: f.name, typ: f.type, groesse: f.size, stand: new Date().toISOString().slice(0, 10), b64: String(fr.result).split(",")[1] };
+      p.profil_angefordert = new Date().toISOString();
+      p._t = Date.now(); statusSpeichern();
+      setFuss("Lebenslauf hinterlegt – Profil wird geschrieben.");
+      oeffne(null); blattProfil(name);
+    };
+    fr.readAsDataURL(f);
+  };
+  q("[data-prs]").onclick = () => {
+    const p = pr(name);
+    [["pr_ausbildung", "ausbildung"], ["pr_ausbildung_geprueft", "ausbildung_geprueft"], ["pr_taetigkeit", "taetigkeit"],
+     ["pr_taetigkeit_klar", "taetigkeit_klar"], ["pr_studium", "studium"], ["pr_studium_fach", "studium_fach"],
+     ["pr_zert", "zert"], ["pr_verfuegbar", "verfuegbar"], ["pr_spez", "spez"], ["pr_suep", "suep"],
+     ["pr_suep_status", "suep_status"], ["pr_thema1", "thema1"], ["pr_thema2", "thema2"], ["pr_rueck", "rueck"],
+     ["pr_rueck_am", "rueck_am"], ["pr_profil", "profil"]].forEach(([id, feld]) => {
+      const el = q("#" + id); if (!el) return;
+      if (el.value === "") delete p[feld]; else p[feld] = el.value;
+    });
+    p._t = Date.now(); statusSpeichern(); setFuss("Profil gespeichert."); liste();
+  };
+  q("[data-prf]").onclick = () => {
+    const p = pr(name);
+    p.profil_angefordert = new Date().toISOString(); p._t = Date.now(); statusSpeichern();
+    setFuss("Profil angefordert – steht in der Regel innerhalb einer Stunde hier.");
+    oeffne(null); blattProfil(name);
+  };
+  q("[data-prd]").onclick = () => blattText("Kundenvorlage · " + name, profilAnKunde(name));
+  q("[data-prr]").onclick = () => blattText("Rücksprache-Mail · " + name, entwurfRuecksprache(name));
+}
+function blattRuecksprache(name) {
+  const p = pr(name);
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Rücksprache · ${esc(name)}</h3>
+    <label>Thema 1</label><input id="rs1" value="${esc(p.thema1 || "")}" placeholder="z. B. Gehaltswunsch, Schichtbereitschaft">
+    <label>Thema 2</label><input id="rs2" value="${esc(p.thema2 || "")}" placeholder="z. B. Wechselmotivation, Umzug">
+    <label>Notiz zur Rücksprache</label><textarea id="rsn" placeholder="Was ist besprochen, was offen?">${esc(p.rueck || "")}</textarea>
+    <label>Rücksprache am</label><input type="date" id="rsd" value="${esc(p.rueck_am || "")}">
+    <div class="knoepfe"><button class="k" data-rss="1">Speichern</button>
+      <button class="k gold" data-rsm="1">Rücksprache-Mail</button>
+      <button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
+    q("[data-rss]").onclick = () => {
+      const p2 = pr(name);
+      [["rs1", "thema1"], ["rs2", "thema2"], ["rsn", "rueck"], ["rsd", "rueck_am"]].forEach(([id, f]) => {
+        const el = q("#" + id); if (el.value === "") delete p2[f]; else p2[f] = el.value;
+      });
+      p2._t = Date.now(); statusSpeichern(); oeffne(null); setFuss("Rücksprache gespeichert."); liste();
+    };
+    q("[data-rsm]").onclick = () => blattText("Rücksprache-Mail · " + name, entwurfRuecksprache(name));
+  });
+}

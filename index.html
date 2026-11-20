@@ -11,108 +11,113 @@
 <style>
 :root{--blau:#0f2740;--blau2:#1b4a72;--akzent:#c8a24a;--hell:#f4f6f9;--linie:#dfe4ea;--ok:#1f7a48;--warn:#a8621b;--rot:#a32121;--grau:#6b7785}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--hell);color:#182430}
-header{background:var(--blau);color:#fff;padding:12px 14px;position:sticky;top:0;z-index:20}
-header .t{font-weight:700;font-size:16px;letter-spacing:.2px}
-header .m{font-size:12px;opacity:.8;margin-top:2px}
-header button{margin-top:8px;margin-right:6px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 10px;font-size:12px}
-nav{display:flex;gap:6px;overflow-x:auto;background:var(--blau2);padding:8px 10px;position:sticky;top:0;z-index:19;scrollbar-width:none}
-nav::-webkit-scrollbar{display:none}
-nav button{flex:0 0 auto;background:transparent;color:#dbe6f0;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 12px;font-size:13px}
-nav button.on{background:#fff;color:var(--blau);border-color:#fff;font-weight:600}
-main{padding:12px 12px 90px;max-width:900px;margin:0 auto}
-h2{font-size:17px;margin:4px 0 10px}
-h3{font-size:14px;margin:14px 0 6px;color:var(--blau2)}
-.tag{display:inline-block;font-size:11px;border-radius:999px;padding:2px 8px;margin:0 4px 4px 0;border:1px solid var(--linie);background:#fff;color:var(--grau)}
-.tag.ok{color:var(--ok);border-color:#bfe0cd;background:#f1faf4}
-.tag.warn{color:var(--warn);border-color:#f0dcc3;background:#fdf7ee}
-.tag.rot{color:var(--rot);border-color:#eec9c9;background:#fdf1f1}
-.tag.blau{color:var(--blau2);border-color:#cfe0ee;background:#f2f7fc}
-.karte{background:#fff;border:1px solid var(--linie);border-radius:12px;padding:12px;margin:0 0 10px;box-shadow:0 1px 2px rgba(16,39,64,.04)}
-.karte .z{font-weight:600;font-size:15px}
-.karte .m{font-size:12.5px;color:var(--grau);margin-top:3px}
-.karte .f{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
-button.pr{background:var(--blau);color:#fff;border:0;border-radius:9px;padding:9px 13px;font-size:13px;font-weight:600}
-button.se{background:#fff;color:var(--blau);border:1px solid var(--blau);border-radius:9px;padding:9px 13px;font-size:13px}
-button.kl{background:#fff;color:var(--grau);border:1px solid var(--linie);border-radius:9px;padding:6px 10px;font-size:12px}
-input,select,textarea{font:inherit;padding:9px 10px;border:1px solid var(--linie);border-radius:9px;background:#fff;width:100%}
-label{display:block;font-size:12px;color:var(--grau);margin:8px 0 3px}
-.gitter{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.kpi{background:#fff;border:1px solid var(--linie);border-radius:10px;padding:10px}
+body{margin:0;font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--hell);color:#15212e}
+header{position:sticky;top:0;z-index:20;background:var(--blau);color:#fff;padding:10px 12px 8px}
+header h1{margin:0;font-size:16px;letter-spacing:.2px}
+header .stand{font-size:11.5px;opacity:.82;margin-top:2px}
+header .werkzeuge{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+header button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:6px 10px;font-size:12.5px}
+nav{position:sticky;top:78px;z-index:19;background:#fff;border-bottom:1px solid var(--linie);display:flex;overflow-x:auto;gap:2px;padding:0 6px}
+nav button{flex:0 0 auto;background:none;border:0;border-bottom:3px solid transparent;padding:9px 10px;font-size:12.5px;color:var(--grau);white-space:nowrap}
+nav button.aktiv{color:var(--blau);border-bottom-color:var(--akzent);font-weight:600}
+main{padding:12px 12px 90px;max-width:1100px;margin:0 auto}
+h2{font-size:14px;margin:2px 0 10px;text-transform:uppercase;letter-spacing:.6px;color:var(--blau2)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-bottom:14px}
+.kpi div{background:#fff;border:1px solid var(--linie);border-radius:10px;padding:8px 10px}
 .kpi .n{font-size:20px;font-weight:700;color:var(--blau)}
-.kpi .b{font-size:12px;color:var(--grau)}
-.hinweis{background:#fdf7ee;border:1px solid #f0dcc3;border-radius:10px;padding:10px;font-size:13px;color:#6b4a1b;margin-bottom:10px}
-.gate{max-width:420px;margin:8vh auto;background:#fff;border:1px solid var(--linie);border-radius:14px;padding:18px}
-.gate h1{font-size:19px;margin:0 0 4px}
-.gate p{font-size:13px;color:var(--grau);margin:0 0 12px}
-.tuch{position:fixed;inset:0;background:rgba(15,39,64,.55);display:flex;align-items:flex-end;justify-content:center;z-index:40}
-.tuch .blatt{background:#fff;width:100%;max-width:700px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px}
-pre.entwurf{white-space:pre-wrap;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:#fbfcfd;border:1px solid var(--linie);border-radius:10px;padding:10px;max-height:44vh;overflow:auto}
-.leer{color:var(--grau);font-size:13px;padding:10px 0}
-.zeile{display:flex;gap:10px;align-items:flex-start;border-top:1px solid var(--linie);padding:9px 0}
-.zeile:first-of-type{border-top:0}
-.zeile .l{flex:1;min-width:0}
+.kpi .l{font-size:11px;color:var(--grau);line-height:1.25}
+.karte{background:#fff;border:1px solid var(--linie);border-radius:11px;padding:10px 11px;margin-bottom:9px}
+.karte .titel{font-weight:700;font-size:14.5px;color:var(--blau)}
+.karte .zeile{font-size:12.5px;color:#33475c;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag{font-size:11px;border-radius:999px;padding:2px 8px;background:#eef2f6;color:#3b4d61;border:1px solid #e2e8ee}
+.tag.blue{background:#e8f1fb;border-color:#cfe1f5;color:#1c4d7d}
+.tag.white{background:#fdf4e3;border-color:#f2e2c4;color:#8a6116}
+.tag.ok{background:#e9f6ee;border-color:#cfe9d9;color:#1f7a48}
+.tag.warn{background:#fdf1e5;border-color:#f5ddc4;color:#a8621b}
+.tag.rot{background:#fbeaea;border-color:#f3cfcf;color:#a32121}
+.tag.grau{background:#eef0f3;color:#6b7785}
+.knoepfe{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+button.k{background:var(--blau);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:12.5px}
+button.k.hell{background:#eef2f6;color:var(--blau);border:1px solid var(--linie)}
+button.k.gruen{background:var(--ok)}
+button.k.gold{background:var(--akzent);color:#2a2005}
+input,select,textarea{font:14px inherit;padding:8px;border:1px solid var(--linie);border-radius:8px;width:100%;background:#fff}
+textarea{min-height:70px}
+label{font-size:12px;color:var(--grau);display:block;margin:8px 0 3px}
+.feld{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:620px){.feld{grid-template-columns:1fr}}
+.tuch{position:fixed;inset:0;background:rgba(12,22,34,.5);display:flex;align-items:flex-end;justify-content:center;z-index:40}
+.blatt{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:720px;max-height:92vh;overflow:auto;padding:14px 14px 22px}
+.blatt h3{margin:0 0 8px;font-size:15px}
+.gate{max-width:340px;margin:14vh auto;background:#fff;border:1px solid var(--linie);border-radius:14px;padding:20px}
+.gate h1{font-size:17px;margin:0 0 4px;color:var(--blau)}
+.gate p{font-size:12.5px;color:var(--grau);margin:0 0 12px}
+.meld{font-size:12.5px;color:var(--rot);min-height:16px;margin-top:6px}
+.fuss{font-size:12px;color:var(--grau);min-height:16px;margin:8px 0}
+.such{display:flex;gap:6px;margin-bottom:10px}
+.such input{flex:1}
+.hinweis{font-size:11.5px;color:var(--grau);margin-top:5px}
+details{background:#fff;border:1px solid var(--linie);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+summary{font-size:13px;font-weight:600;color:var(--blau2)}
+pre{white-space:pre-wrap;font:13px/1.45 inherit;background:#fbfcfd;border:1px solid var(--linie);border-radius:8px;padding:10px;margin:8px 0}
 </style>
 </head>
 <body>
-<div id="root"></div>
+<header>
+  <h1>ZK Professionals · Stellenmatching</h1>
+  <div class="stand" id="stand">wird geladen …</div>
+  <div class="werkzeuge" id="werkzeuge"></div>
+</header>
+<nav id="reiter"></nav>
+<main id="inhalt"></main>
 <script>
 "use strict";
-/* =========================================================================
-   ZK Professionals · Stellenmatching  (Stufe 1: Zugang nur Tobias)
-   Daten liegen verschluesselt in der Cloud. Der Schluessel entsteht aus dem
-   Passwort (PBKDF2-SHA256, 200k) - ohne Passwort gibt es keinen Klartext,
-   auch nicht im Speicher der Cloud. Beide Speicher sind getrennt:
-     zk-app-daten  = vom Server erzeugte Liste (schreibt nur der Server)
-     zk-app-status = Notizen, Status, Muss/Kann-Profile (schreibt die App)
-   ========================================================================= */
-const BUCKET   = "HuCDKH1zjs9QPg6yTPeVqH";
-const URL_DATEN  = "https://kvdb.io/" + BUCKET + "/zk-app-daten";
+/* ---------- Zugang ---------- */
+const BUCKET = "HuCDKH1zjs9QPg6yTPeVqH";
+const URL_DATEN = "https://kvdb.io/" + BUCKET + "/zk-app-daten";
 const URL_STATUS = "https://kvdb.io/" + BUCKET + "/zk-app-status";
+const URL_NEU = "https://kvdb.io/" + BUCKET + "/zk-app-neukunden";
 const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
-let schluessel = null, SALT = null, daten = null, status = null, tab = "arbeit", filter = null;
+let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
+let tab = "arbeit", filter = null, suche = "";
 
 /* ---------- Krypto ---------- */
 const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
 const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-
 async function keyAus(passwort, saltB64, iter) {
-  const roh = await crypto.subtle.importKey("raw", new TextEncoder().encode(passwort), "PBKDF2", false, ["deriveKey"]);
+  const grund = await crypto.subtle.importKey("raw", new TextEncoder().encode(passwort), "PBKDF2", false, ["deriveKey"]);
   return crypto.subtle.deriveKey(
     { name: "PBKDF2", salt: b64d(saltB64), iterations: iter || ITER, hash: "SHA-256" },
-    roh, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    grund, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
 }
-
 async function entschluesseln(huelle, passwort) {
-  if (!huelle || !huelle.ct) return null;
   const k = await keyAus(passwort, huelle.salt, huelle.iter);
   const klar = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64d(huelle.iv) }, k, b64d(huelle.ct));
   return JSON.parse(new TextDecoder().decode(klar));
 }
-
 async function verschluesseln(objekt, k) {
-  const iv   = crypto.getRandomValues(new Uint8Array(12));
-  const ct   = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, new TextEncoder().encode(JSON.stringify(objekt)));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, new TextEncoder().encode(JSON.stringify(objekt)));
   return { v: VERSION, kdf: KDF, iter: ITER, salt: SALT, iv: b64e(iv), ct: b64e(ct) };
 }
 
 /* ---------- Speicher ---------- */
 async function hole(url) {
-  const r = await fetch(url + "?_=" + Date.now(), { cache: "no-store" });
+  const r = await fetch(url + "?z=" + Date.now(), { cache: "no-store" });
   if (!r.ok) return null;
   const t = (await r.text()).trim();
   if (!t) return null;
-  try { return JSON.parse(t); } catch (e) { return null; }
+  return JSON.parse(t);
 }
 async function lege(url, huelle) {
-  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
-                               body: JSON.stringify(huelle) });
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(huelle) });
   return r.ok;
 }
-async function anmelden(passwort, wer) {
+async function anmelden(passwort) {
   const h = await hole(URL_DATEN);
-  if (!h) throw new Error("Keine Daten in der Cloud gefunden.");
+  if (!h) throw new Error("Die Daten sind gerade nicht erreichbar.");
   let inhalt;
   try { inhalt = await entschluesseln(h, passwort); }
   catch (e) { throw new Error("Passwort stimmt nicht."); }
@@ -120,410 +125,674 @@ async function anmelden(passwort, wer) {
   SALT = h.salt;
   daten = inhalt;
   const s = await hole(URL_STATUS);
-  status = (s ? await entschluesseln(s, passwort).catch(() => null) : null) || { rows: {}, stelle: {}, stand: 0 };
-  sessionStorage.setItem("zk_pass", passwort);
-  sessionStorage.setItem("zk_wer", wer || "tobias");
-  return true;
+  status = (s ? await entschluesseln(s, passwort).catch(() => null) : null) || { rows: {}, stelle: {}, profil: {}, stand: 0 };
+  status.rows = status.rows || {}; status.stelle = status.stelle || {}; status.profil = status.profil || {};
+  const n = await hole(URL_NEU);
+  neukunden = (n ? await entschluesseln(n, passwort).catch(() => null) : null) || { rows: {}, stand: 0 };
+  neukunden.rows = neukunden.rows || {};
 }
 async function statusSpeichern() {
-  if (!schluessel) return;
   status.stand = Date.now();
   const ok = await lege(URL_STATUS, await verschluesseln(status, schluessel));
-  setFuss(ok ? "gespeichert · " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "nicht gespeichert – bitte nochmal");
+  setFuss(ok ? "Gespeichert " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "Speichern fehlgeschlagen – bitte nochmal.");
+  return ok;
 }
-function abmelden(){ sessionStorage.clear(); schluessel = daten = status = null; zeichne(); }
+async function neukundenSpeichern() {
+  neukunden.stand = Date.now();
+  const ok = await lege(URL_NEU, await verschluesseln(neukunden, schluessel));
+  setFuss(ok ? "Neukunden-Blatt gespeichert." : "Speichern fehlgeschlagen – bitte nochmal.");
+  return ok;
+}
+/* Zeile im Statusspeicher (Art: arbeit | bestand | eingang | zulauf | nachkontrolle | nachfass | profil) */
+function st(art, id) { status.rows[art] = status.rows[art] || {}; status.rows[art][id] = status.rows[art][id] || {}; return status.rows[art][id]; }
+function stSet(art, id, feld, wert) { const r = st(art, id); if (wert === "" || wert == null) delete r[feld]; else r[feld] = wert; r._t = Date.now(); statusSpeichern(); }
+function nk(id) { neukunden.rows[id] = neukunden.rows[id] || {}; return neukunden.rows[id]; }
 /* ---------- Hilfen ---------- */
 const q = (s, r) => (r || document).querySelector(s);
 const qa = (s, r) => Array.from((r || document).querySelectorAll(s));
-const esc = t => String(t == null ? "" : t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const R = (o, f) => (o && o[f] != null ? String(o[f]) : "");
-const km = t => { const n = parseFloat(String(t).replace(",", ".")); return isNaN(n) ? null : n; };
-const kennung = (o, felder) => felder.map(f => R(o, f)).join("|").toLowerCase();
-const standText = t => { if (!t) return "offen"; const d = new Date(t); return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" }) + " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }); };
-const heuteISO = () => new Date().toISOString().slice(0, 10);
-
-const S_FELDER = ["Nächster Schritt", "Verantwortlicher", "Ergebnis"];
-function st(art, id) { status.rows[art] = status.rows[art] || {}; status.rows[art][id] = status.rows[art][id] || {}; return status.rows[art][id]; }
-function stSet(art, id, feld, wert) { const r = st(art, id); if (wert === "" || wert == null) delete r[feld]; else r[feld] = wert; r._t = Date.now(); statusSpeichern(); }
-function eigene(art, id, feld, standard) { const r = st(art, id); return r[feld] != null ? r[feld] : (standard || ""); }
-
-/* ---------- Kennzahlen ---------- */
-function kpiBlock() {
-  const k = daten.kennzahlen || {};
-  const offen = (daten.arbeitsliste || []).filter(z => !eigene("arbeit", kennung(z, ["Bewerber", "Niederlassung"]), "Bewerbung geprüft", R(z, "Bewerbung geprüft"))).length;
-  const felder = [["Bewerber in der Liste", k.bewerber], ["davon noch ungeprüft", offen], ["Treffer Bestandskunden", k.bestand_treffer], ["Neukunden-Leads", k.leads], ["Bewerbungen der Woche", k.eingang], ["Zulauf ohne Daten", k.zulauf], ["unter 65 %", k.nachkontrolle], ["Nachfassen offen", k.nachfass]];
-  return '<div class="gitter">' + felder.map(f => '<div class="kpi"><div class="n">' + esc(f[1] == null ? "–" : f[1]) + '</div><div class="b">' + esc(f[0]) + '</div></div>').join("") + '</div>';
+const esc = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+/* ---------- Zeilen, Kennungen, Berufsbild ---------- */
+function R(z, feld) { return z && z[feld] != null ? z[feld] : ""; }
+function kennung(z, felder) {
+  const s = felder.map(f => String(R(z, f)), ).join("|").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 46);
+  let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return s + "~" + (h >>> 0).toString(36);
 }
+const kArt = z => kennung(z, ["Bewerber", "Niederlassung"]);
+const kBest = z => kennung(z, ["Bewerber", "unsere offene Stelle", "Kunde (Bestand)"]);
+const kEingang = z => kennung(z, ["Bewerber", "Stelle", "Eingang"]);
+const kZulauf = z => kennung(z, ["Bewerber", "beworben auf", "Eingang"]);
+const kNachk = z => kennung(z, ["Bewerber", "Stelle / Anlass", "Arbeitgeber"]);
+const kNachf = z => kennung(z, ["Bewerber", "beworben auf"]);
+const kLead = z => kennung(z, ["Bewerber", "Unternehmen (Neukunde)", "Anlass / Stelle"]);
+const kPerson = name => String(name || "").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 60);
 
-/* ---------- Kopf und Reiter ---------- */
-const REITER = [["arbeit", "Arbeitsliste"], ["eingang", "Eingang"], ["matching", "Matching"], ["leads", "Neukunden"], ["zulauf", "Zulauf ohne Daten"], ["niedrig", "unter 65 %"], ["nachfass", "Nachfassen"], ["regel", "Regel & Ansprechtext"], ["auswertung", "Auswertung"]];
+const VERTEIDIGUNG = /hensoldt|airbus defence|mbda|rheinmetall|diehl|esg |iabg|rohde|thales|leonardo|knds|ffg|atlas elektronik|krauss|heckler|defence|defense|bundeswehr|bwb|dstl|isr|optronik|prec|sens/;
+const verteidigung = z => VERTEIDIGUNG.test(String(R(z, "Kunde (Bestand)") || R(z, "Kunde") || R(z, "Unternehmen (Neukunde)") || R(z, "Arbeitgeber") || R(z, "Stelle / Anlass") || "").toLowerCase());
+const istBlue = z => /blue/i.test(String(R(z, "Blue/White")));
 
-function kopf() {
-  return '<header><div class="t">ZK Professionals · Stellenmatching</div>'
-    + '<div class="m">Stand ' + esc(daten.stand || "–") + ' · angemeldet als ' + esc(sessionStorage.getItem("zk_wer") || "tobias") + '</div>'
-    + '<button data-h="neu">Aktualisieren</button><button data-h="raus">Abmelden</button></header>'
-    + '<nav>' + REITER.map(r => '<button data-t="' + r[0] + '" class="' + (tab === r[0] ? "on" : "") + '">' + esc(r[1]) + '</button>').join("") + '</nav>';
+/* ---------- Bewerberprofil (Kriterien) ---------- */
+function pr(name) { const k = kPerson(name); status.profil[k] = Object.assign({ cv: null }, status.profil[k] || {}); return status.profil[k]; }
+function prSet(name, feld, wert) {
+  const p = pr(name);
+  if (wert === "" || wert == null) delete p[feld]; else p[feld] = wert;
+  p._t = Date.now();
+  statusSpeichern();
 }
-function setFuss(t) { const f = q("#fuss"); if (f) { f.textContent = t; f.style.opacity = 1; setTimeout(() => { f.style.opacity = .0; }, 2500); } }
-
-/* ---------- Karten: Arbeitsliste ---------- */
-function karteArbeit(z) {
-  const id = kennung(z, ["Bewerber", "Niederlassung"]);
-  const geprueft = eigene("arbeit", id, "Bewerbung geprüft", R(z, "Bewerbung geprüft"));
-  const treffer = parseInt(R(z, "Vorhandene Kunden") || "0", 10) || 0;
-  const leads = parseInt(R(z, "Neukunden-Leads") || "0", 10) || 0;
-  const schritt = eigene("arbeit", id, "Nächster Schritt", R(z, "Nächster Schritt"));
-  const wer = eigene("arbeit", id, "Verantwortlicher", R(z, "Verantwortlicher"));
-  return '<div class="karte">'
-    + '<div class="z">' + esc(R(z, "Bewerber")) + (geprueft ? ' <span class="tag ok">geprüft</span>' : ' <span class="tag warn">Geprüft? offen</span>') + '</div>'
-    + '<div class="m">' + esc(R(z, "Zielrolle / Beruf")) + ' · ' + esc(R(z, "Wohnort")) + ' · Niederlassung ' + esc(R(z, "Niederlassung")) + ' · im System seit ' + esc(R(z, "im System seit")) + '</div>'
-    + '<div style="margin-top:6px">'
-      + '<span class="tag blau">' + esc(R(z, "Region")) + '</span><span class="tag">' + esc(R(z, "Blue/White")) + '</span>'
-      + (treffer ? '<span class="tag ok">' + treffer + ' Treffer Bestand</span>' : '<span class="tag rot">kein Bestandstreffer</span>')
-      + (leads ? '<span class="tag warn">' + leads + ' Neukunden-Lead(s)</span>' : '')
-      + (wer ? '<span class="tag">' + esc(wer) + '</span>' : '<span class="tag rot">Verantwortlicher fehlt</span>')
-    + '</div>'
-    + '<div class="m" style="margin-top:8px"><b>Nächster Schritt:</b> ' + esc(schritt || "–") + '</div>'
-    + '<div class="f">'
-      + '<button class="pr" data-h="matching" data-w="' + esc(R(z, "Bewerber")) + '">Passende Stellen zeigen</button>'
-      + '<button class="se" data-h="bearb" data-a="arbeit" data-i="' + esc(id) + '" data-w="' + esc(R(z, "Bewerber")) + '">Bearbeiten</button>'
-    + '</div></div>';
+function fehlendePunkte(name, z) {
+  const p = pr(name), aus = [];
+  if (!p.ausbildung) aus.push("Ausbildung fehlt");
+  else if (!p.ausbildung_geprueft) aus.push("Ausbildung noch nicht geprüft");
+  if (!p.taetigkeit) aus.push("Tätigkeit fehlt");
+  else if (!p.taetigkeit_klar) aus.push("Tätigkeit nicht klar");
+  if (!p.studium && !p.ausbildung) aus.push("weder Ausbildung noch Studium");
+  if (!p.sap && !p.google && !p.m365) aus.push("keine IT-Kenntnisse (SAP/M365/Google)");
+  if (!p.spez) aus.push("keine Spezialisierung");
+  if (verteidigung(z) && !p.suep) aus.push("ZÜP/Ü2/SÜG fehlt (Verteidigung)");
+  if (!p.cv) aus.push("kein Lebenslauf");
+  if (!p.profil) aus.push("Profil noch nicht geschrieben");
+  return aus;
 }
-function vArbeit() {
-  let l = (daten.arbeitsliste || []);
-  if (filter) l = l.filter(z => R(z, "Bewerber") === filter);
-  return '<h2>' + (filter ? 'Arbeitsliste · ' + esc(filter) : 'Arbeitsliste BEWERBER') + '</h2>'
-    + (filter ? '<div class="f" style="margin-bottom:10px"><button class="kl" data-h="filterweg">Filter aufheben</button></div>' : kpiBlock())
-    + (l.length ? l.map(karteArbeit).join("") : '<div class="leer">Keine Einträge.</div>');
+function profilStand(name, z) {
+  const offen = fehlendePunkte(name, z).length;
+  return offen === 0 ? "vollständig" : offen + " Punkt(e) offen";
 }
 
-/* ---------- Eingang ---------- */
-function vEingang() {
-  const l = daten.eingang || [];
-  const neu = l.filter(z => !eigene("eingang", kennung(z, ["Bewerber", "Stelle"]), "gesehen", ""));
-  return '<h2>Eingang · Bewerbungen der Woche</h2>'
-    + '<div class="hinweis">Ziel: innerhalb von 48 Stunden geprüft und mit einem nächsten Schritt versehen. Neue Einträge stehen oben.</div>'
-    + l.map(z => {
-      const id = kennung(z, ["Bewerber", "Stelle"]);
-      const s = st("eingang", id);
-      const titel = R(z, "Bewerber");
-      const rest = [R(z, "Stelle"), R(z, "Kunde"), R(z, "Niederlassung")].filter(Boolean).join(" · ");
-      return '<div class="karte">'
-        + '<div class="z">' + esc(titel) + (R(z, "Status") ? ' <span class="tag">' + esc(R(z, "Status")) + '</span>' : '') + '</div>'
-        + '<div class="m">Eingang ' + esc(R(z, "Eingang")) + ' · ' + esc(rest) + '</div>'
-        + '<div style="margin-top:6px"><span class="tag blau">Match Bestand: ' + esc(R(z, "Match Bestand") || "–") + '</span><span class="tag blau">Match neue Stellen: ' + esc(R(z, "Match neue Stellen") || "–") + '</span><span class="tag">' + esc(R(z, "Recruiter")) + '</span></div>'
-        + '<div class="m" style="margin-top:8px">Nächster Schritt: ' + esc(s["Nächster Schritt"] || "–") + '</div>'
-        + '<div class="f"><button class="pr" data-h="eingbearb" data-i="' + esc(id) + '" data-w="' + esc(titel) + '">Bearbeiten</button>'
-        + '<button class="se" data-h="matching" data-w="' + esc(titel) + '">Matching</button></div></div>';
-    }).join("");
-}
+/* ---------- Reiter ---------- */
+const REITER = [
+  ["arbeit", "Arbeitsliste"], ["eingang", "Eingang"], ["matching", "Matching"],
+  ["neukunden", "Neukunden"], ["zulauf", "Zulauf ohne Daten"], ["nachkontrolle", "unter 65 %"],
+  ["nachfass", "Nachfassen"], ["regel", "Regel & Text"], ["auswertung", "Auswertung"]
+];
+const FELDER = {
+  arbeit: ["Region", "Blue/White", "Bewerber", "Wohnort", "Zielrolle / Beruf", "Niederlassung", "im System seit", "Bewerbung geprüft", "Vorhandene Kunden", "Neukunden-Leads", "Nächster Schritt", "Verantwortlicher", "Ergebnis"],
+  bestand: ["Region", "Blue/White", "Bewerber", "Wohnort", "km", "unsere offene Stelle", "Kunde (Bestand)", "Ort Einsatz", "Niederlassung", "Titelbezug", "Einschätzung", "Kunde angesprochen", "Ergebnis"],
+  eingang: ["Eingang", "Bewerber", "Stelle", "Kunde", "Niederlassung", "Status", "Recruiter", "Match Bestand", "Match neue Stellen"],
+  zulauf: ["Bewerber", "beworben auf", "Kunde", "Niederlassung", "Eingang", "Status", "Recruiter", "Wohnort", "Berufsrichtung", "Was fehlt", "Erledigt"],
+  nachkontrolle: ["Region", "Blue/White", "Bewerber", "Stelle / Anlass", "Arbeitgeber", "Passung", "Quelle", "Grund"],
+  nachfass: ["Niederlassung", "Bewerber", "beworben auf", "Wohnort", "Berufsrichtung", "Fehlt noch", "Recruiter", "nachgefasst am", "Erledigt"],
+  leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
+};
+const KM_MAX = 60;
 
-/* ---------- Zulauf ohne Daten ---------- */
-function vZulauf() {
-  const l = daten.zulauf || [];
-  return '<h2>Zulauf ohne Daten</h2>'
-    + '<div class="hinweis">Diese Bewerber haben etwas geschickt, aber nicht das, was zur Vorstellung nötig ist. Was fehlt, steht jeweils dabei: das ist der nächste Anruf oder die nächste Mail.</div>'
-    + l.map(z => {
-      const id = kennung(z, ["Bewerber", "beworben auf"]);
-      const s = st("zulauf", id);
-      const erledigt = s["Erledigt"] === "ja";
-      return '<div class="karte">'
-        + '<div class="z">' + esc(R(z, "Bewerber")) + (erledigt ? ' <span class="tag ok">erledigt</span>' : '') + '</div>'
-        + '<div class="m">beworben auf ' + esc(R(z, "beworben auf")) + (R(z, "Kunde") ? ' · ' + esc(R(z, "Kunde")) : '') + ' · Eingang ' + esc(R(z, "Eingang")) + '</div>'
-        + '<div class="m">' + esc(R(z, "Wohnort")) + (R(z, "Berufsrichtung") ? ' · ' + esc(R(z, "Berufsrichtung")) : '') + ' · ' + esc(R(z, "Recruiter")) + '</div>'
-        + '<div style="margin-top:6px"><span class="tag warn">Was fehlt: ' + esc(R(z, "Was fehlt")) + '</span></div>'
-        + '<div class="f"><button class="pr" data-h="zulauferl" data-i="' + esc(id) + '" data-w="' + esc(R(z, "Bewerber")) + '">' + (erledigt ? "wieder offen" : "Daten angefordert") + '</button>'
-        + '<button class="se" data-h="zulaufbearb" data-i="' + esc(id) + '" data-w="' + esc(R(z, "Bewerber")) + '">Notiz</button></div></div>';
-    }).join("");
+function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
+function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
+function passtSuche(z) {
+  if (!suche) return true;
+  const s = suche.toLowerCase();
+  return Object.keys(z).some(k => String(z[k]).toLowerCase().includes(s));
 }
-/* ---------- Matching ---------- */
-function sStelleName(z) { return R(z, "unsere offene Stelle") || R(z, "Stelle / Anlass") || "Stelle"; }
-function profil(id, stelle, kunde) {
-  status.stelle = status.stelle || {};
-  status.stelle[id] = status.stelle[id] || { stelle: stelle, kunde: kunde, muss: "", kann: "" };
-  return status.stelle[id];
+function kopiere(text) {
+  navigator.clipboard.writeText(text).then(() => setFuss("Kopiert – kann eingefügt werden."), () => setFuss("Kopieren ging nicht, bitte Text markieren."));
 }
-function vMatching() {
-  let l = (daten.bestand || []).slice();
-  l.sort((a, b) => (km(R(a, "km")) == null ? 999 : km(R(a, "km"))) - (km(R(b, "km")) == null ? 999 : km(R(b, "km"))));
-  if (filter) l = l.filter(z => R(z, "Bewerber") === filter);
-  const kopfText = '<h2>Matching · vorhandene Kunden' + (filter ? ' · ' + esc(filter) : '') + '</h2>'
-    + '<div class="hinweis">Jede Zeile ist ein Vorschlag: Bewerber, unsere offene Stelle, Kunde und Entfernung. „Vorschlagen" erzeugt den Entwurf für die Kundenansprache – versendet wird erst nach Freigabe.</div>'
-    + (filter ? '<div style="margin-bottom:10px"><button class="kl" data-h="filterweg">Filter aufheben</button></div>' : '');
-  if (!l.length) return kopfText + '<div class="leer">Keine Treffer.</div>';
-  return kopfText + l.map(z => {
-    const id = kennung(z, ["Bewerber", "unsere offene Stelle", "Ort Einsatz"]);
-    const d = km(R(z, "km"));
-    const p = profil("kunde:" + kennung(z, ["Kunde (Bestand)", "unsere offene Stelle"]), sStelleName(z), R(z, "Kunde (Bestand)"));
-    const angesprochen = st("bestand", id)["Kunde angesprochen"] === "ja";
-    return '<div class="karte">'
-      + '<div class="z">' + esc(R(z, "Bewerber")) + ' <span class="tag ' + (d != null && d <= 50 ? "ok" : "rot") + '">' + esc(R(z, "km")) + ' km</span>'
-      + (angesprochen ? ' <span class="tag ok">Kunde angesprochen</span>' : '') + '</div>'
-      + '<div class="m">' + esc(R(z, "unsere offene Stelle")) + '</div>'
-      + '<div class="m">Kunde: ' + esc(R(z, "Kunde (Bestand)")) + ' · Einsatzort ' + esc(R(z, "Ort Einsatz")) + ' · Niederlassung ' + esc(R(z, "Niederlassung")) + '</div>'
-      + '<div style="margin-top:6px"><span class="tag blau">Titelbezug ' + esc(R(z, "Titelbezug")) + '</span><span class="tag">' + esc(R(z, "Blue/White")) + '</span>'
-      + (p.muss ? '<span class="tag warn">Muss: ' + esc(p.muss) + '</span>' : '')
-      + (p.kann ? '<span class="tag">Kann: ' + esc(p.kann) + '</span>' : '')
-      + (p.muss || p.kann ? '' : '<span class="tag rot">Muss/Kann noch offen</span>') + '</div>'
-      + '<div class="m" style="margin-top:8px">' + esc(R(z, "Einschätzung")) + '</div>'
-      + '<div class="f"><button class="pr" data-h="vorschlag" data-i="' + esc(id) + '" data-w="' + esc(R(z, "Bewerber")) + '">Vorschlag erstellen</button>'
-      + '<button class="se" data-h="angesprochen" data-i="' + esc(id) + '">' + (angesprochen ? "doch offen" : "Kunde angesprochen") + '</button>'
-      + '<button class="kl" data-h="profil" data-i="kunde:' + esc(kennung(z, ["Kunde (Bestand)", "unsere offene Stelle"])) + '" data-w="' + esc(R(z, "Kunde (Bestand)")) + '|' + esc(sStelleName(z)) + '">Muss/Kann</button></div></div>';
-  }).join("");
-}
-
-/* ---------- Neukunden-Leads ---------- */
-function vLeads() {
-  const l = daten.leads || [];
-  const a = l.filter(z => R(z, "Kunde A/B").toUpperCase().startsWith("A")).length;
-  return '<h2>Neukunden-Leads</h2>'
-    + '<div class="hinweis">' + l.length + ' Leads, davon ' + a + ' A-Kunden mit Ansprechpartner. Nur A-Kunden werden angesprochen – bei B-Kunden gibt es keinen benannten Kontakt, ein Kaltkontakt ist unzulässig.</div>'
-    + l.map(z => {
-      const id = kennung(z, ["Unternehmen (Neukunde)", "Anlass / Stelle"]);
-      const s = st("leads", id);
-      const istA = R(z, "Kunde A/B").toUpperCase().startsWith("A");
-      const kontaktiert = s["Kontakt aufgenommen"] === "ja";
-      return '<div class="karte" style="' + (istA ? "" : "opacity:.72") + '">'
-        + '<div class="z">' + esc(R(z, "Unternehmen (Neukunde)")) + ' <span class="tag ' + (istA ? "ok" : "") + '">' + esc(R(z, "Kunde A/B") || "B") + '</span>'
-        + (kontaktiert ? ' <span class="tag ok">angesprochen</span>' : '') + '</div>'
-        + '<div class="m">' + esc(R(z, "Anlass / Stelle")) + ' · Passung ' + esc(R(z, "Passung")) + '</div>'
-        + '<div class="m">' + esc(R(z, "Wohnort")) + ' · ' + esc(R(z, "Zielrolle / Beruf")) + ' · Kontaktweg: ' + esc(R(z, "Kontaktweg")) + '</div>'
-        + (R(z, "Ansprechpartner") ? '<div style="margin-top:6px"><span class="tag blau">' + esc(R(z, "Ansprechpartner")) + '</span></div>' : '<div style="margin-top:6px"><span class="tag rot">kein Ansprechpartner – nicht ansprechen</span></div>')
-        + (s["Notiz"] ? '<div class="m" style="margin-top:8px">Notiz: ' + esc(s["Notiz"]) + '</div>' : '')
-        + '<div class="f">' + (istA ? '<button class="pr" data-h="leadtext" data-i="' + esc(id) + '" data-w="' + esc(R(z, "Unternehmen (Neukunde)")) + '">Anschreiben erstellen</button>' : '')
-        + (R(z, "Link") ? '<a class="kl" style="text-decoration:none;padding:8px 10px" href="' + esc(R(z, "Link")) + '" target="_blank" rel="noopener">Anzeige öffnen</a>' : '')
-        + '<button class="se" data-h="leadkontakt" data-i="' + esc(id) + '">' + (kontaktiert ? "doch offen" : "angesprochen") + '</button></div></div>';
-    }).join("");
-}
-
-/* ---------- unter 65 %, Nachfassliste ---------- */
-function vNiedrig() {
-  const l = daten.nachkontrolle || [];
-  return '<h2>unter 65 % · Nachkontrolle</h2>'
-    + '<div class="hinweis">Diese Paare liegen unter der Schwelle von 65 %. Sie werden nicht vorgeschlagen, höchstens als Hinweis vermerkt. Grund jeweils dabei.</div>'
-    + l.map(z => '<div class="karte"><div class="z">' + esc(R(z, "Bewerber")) + ' <span class="tag rot">' + esc(R(z, "Passung")) + '</span></div>'
-      + '<div class="m">' + esc(R(z, "Stelle / Anlass")) + ' · ' + esc(R(z, "Arbeitgeber")) + ' · ' + esc(R(z, "Region")) + '</div>'
-      + '<div class="m">Grund: ' + esc(R(z, "Grund")) + ' · Quelle: ' + esc(R(z, "Quelle")) + '</div></div>').join("");
-}
-function vNachfass() {
-  const l = daten.nachfass || [];
-  return '<h2>Nachfassen</h2>'
-    + '<div class="hinweis">Bewerber, die etwas eingereicht haben und eine Antwort brauchen. Nach fünf Tagen ohne Rückmeldung wird nachgefasst.</div>'
-    + l.map(z => {
-      const id = kennung(z, ["Bewerber", "beworben auf"]);
-      const s = st("nachfass", id);
-      return '<div class="karte"><div class="z">' + esc(R(z, "Bewerber")) + (s["Erledigt"] === "ja" ? ' <span class="tag ok">nachgefasst</span>' : '') + '</div>'
-        + '<div class="m">beworben auf ' + esc(R(z, "beworben auf")) + ' · ' + esc(R(z, "Wohnort")) + ' · ' + esc(R(z, "Berufsrichtung")) + '</div>'
-        + '<div style="margin-top:6px"><span class="tag warn">Fehlt noch: ' + esc(R(z, "Fehlt noch")) + '</span><span class="tag">' + esc(R(z, "Recruiter")) + '</span></div>'
-        + '<div class="m" style="margin-top:8px">nachgefasst am ' + esc(R(z, "nachgefasst am") || "–") + '</div>'
-        + '<div class="f"><button class="pr" data-h="nachfasserl" data-i="' + esc(id) + '">' + (s["Erledigt"] === "ja" ? "wieder offen" : "nachgefasst") + '</button>'
-        + '<button class="se" data-h="mailtext" data-i="' + esc(id) + '" data-w="' + esc(R(z, "Bewerber")) + '" data-art="nachfass">Mail an Bewerber</button></div></div>';
-    }).join("");
-}
-
-/* ---------- Regel & Ansprechtext ---------- */
-function vRegel() {
-  const r = daten.regel || [], a = daten.ansprechtext || [];
-  return '<h2>Regel</h2>' + r.map(x => '<div class="zeile"><div class="l"><b>' + esc(x.k) + '</b><div class="m" style="color:#6b7785;font-size:12.5px">' + esc(x.v) + '</div></div></div>').join("")
-    + '<h2 style="margin-top:18px">Ansprechtext</h2>' + a.map(x => '<div class="zeile"><div class="l"><b>' + esc(x.k) + '</b><div style="font-size:13px;white-space:pre-wrap;margin-top:3px">' + esc(x.v) + '</div></div></div>').join("");
-}
-
-/* ---------- Auswertung ---------- */
-function vAuswertung() {
-  const alle = (daten.arbeitsliste || []);
-  const mitTreffer = alle.filter(z => (parseInt(R(z, "Vorhandene Kunden") || "0", 10) || 0) > 0).length;
-  const ohne = alle.length - mitTreffer;
-  const quote = alle.length ? Math.round(mitTreffer / alle.length * 100) : 0;
-  const nach = alle.filter(z => st("arbeit", kennung(z, ["Bewerber", "Niederlassung"]))["Nächster Schritt"] || R(z, "Nächster Schritt")).length;
-  return '<h2>Auswertung</h2>' + kpiBlock()
-    + '<div class="karte"><div class="z">Passungsquote</div><div class="m">' + mitTreffer + ' von ' + alle.length + ' Bewerbern haben mindestens einen Bestandstreffer (' + quote + ' %). ' + ohne + ' Bewerber brauchen einen Neukunden-Kontakt.</div></div>'
-    + '<div class="karte"><div class="z">Bearbeitungsstand Arbeitsliste</div><div class="m">' + nach + ' von ' + alle.length + ' haben einen nächsten Schritt hinterlegt, ' + (alle.length - nach) + ' nicht.</div></div>'
-    + '<div class="karte"><div class="z">Eingang, Zulauf, Nachkontrolle</div><div class="m">Eingang ' + (daten.eingang || []).length + ' · Zulauf ohne Daten ' + (daten.zulauf || []).length + ' · unter 65 % ' + (daten.nachkontrolle || []).length + ' · Nachfassliste ' + (daten.nachfass || []).length + '</div></div>';
-}
-/* ---------- Entwürfe ---------- */
-function entwurfVorschlag(z) {
-  const p = profil("kunde:" + kennung(z, ["Kunde (Bestand)", "unsere offene Stelle"]), sStelleName(z), R(z, "Kunde (Bestand)"));
-  const zeilen = [
-    "Guten Tag,", "",
-    "zu Ihrer offenen Stelle „" + sStelleName(z) + "\" (" + R(z, "Ort Einsatz") + ") schlage ich Ihnen einen Kandidaten vor:",
-    "",
-    "· " + R(z, "Bewerber") + ", " + R(z, "Wohnort") + " – rund " + R(z, "km") + " km zum Einsatzort",
-    "· Profil: " + R(z, "Blue/White") + ", Titelbezug " + R(z, "Titelbezug"),
-    "· Fachliche Passung: " + R(z, "Einschätzung"),
-  ];
-  if (p.muss) zeilen.push("· Muss-Kriterien: " + p.muss);
-  if (p.kann) zeilen.push("· Kann-Kriterien: " + p.kann);
-  zeilen.push("", "Der Kandidat ist kurzfristig verfügbar. Sagen Sie mir kurz Bescheid, ob ich den Kontakt herstellen darf – dann stimme ich einen Termin ab.", "", "Beste Grüße", "Thomas Hirschbeck", "ZK Professionals");
-  return zeilen.join("\n");
-}
-function entwurfLead(z, kunde) {
-  return [
-    "Guten Tag" + (kunde ? " " + kunde : "") + ",", "",
-    "ich habe gesehen, dass Sie „" + R(z, "Anlass / Stelle") + "\" besetzen möchten.",
-    "Wir sind auf Personal in der Luftfahrt und im technischen Umfeld spezialisiert – ohne Zeitarbeit, wir besetzen dauerhaft.",
-    "",
-    "Aktuell in Ihrer Region verfügbar:",
-    "· " + R(z, "Zielrolle / Beruf") + " in " + R(z, "Wohnort") + " (Passung " + R(z, "Passung") + ")",
-    "",
-    "Wenn ein Gespräch für Sie passt, melde ich mich gern mit zwei, drei passenden Profilen – ohne Verpflichtung.", "",
-    "Beste Grüße", "Thomas Hirschbeck", "ZK Professionals",
-  ].join("\n");
-}
-function entwurfNachfass(z) {
-  return [
-    "Hallo " + R(z, "Bewerber") + ",", "",
-    "vielen Dank für Ihre Bewerbung auf „" + R(z, "beworben auf") + "\".",
-    "Damit ich Sie passend vorschlagen kann, fehlt uns noch: " + R(z, "Fehlt noch") + ".",
-    "",
-    "Schicken Sie mir das kurz, dann prüfe ich die Stellen in Ihrer Nähe und melde mich mit konkreten Vorschlägen.", "",
-    "Beste Grüße", "Thomas Hirschbeck", "ZK Professionals",
-  ].join("\n");
-}
-
-/* ---------- Blätter (Bearbeiten / Vorschlag / Profil) ---------- */
-function blattInhalt(titel, html) {
-  return '<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">'
-    + '<h2 style="margin-top:0">' + esc(titel) + '</h2>' + html
-    + '<div class="f" style="margin-top:12px"><button class="kl" data-h="zu">Schließen</button></div></div></div>';
-}
-function feld(name, wert) { return '<label>' + esc(name) + '</label><input data-f="' + esc(name) + '" value="' + esc(wert || "") + '">'; }
-
-function blattBearbeiten(art, id, titel) {
-  const s = st(art, id);
-  const felder = art === "eingang" ? ["Nächster Schritt", "Verantwortlicher", "Ergebnis"] : ["Nächster Schritt", "Verantwortlicher", "Ergebnis"];
-  const inhalt = felder.map(f => feld(f, s[f])).join("");
-  return blattInhalt(titel, '<div class="m" style="color:#6b7785;font-size:12.5px">Status und Notizen speichern sich automatisch für alle, die die App benutzen.</div>' + inhalt)
-    .replace('<div class="f" style="margin-top:12px">',
-      '<div class="f" style="margin-top:12px"><button class="pr" data-h="speichern" data-a="' + esc(art) + '" data-i="' + esc(id) + '">Speichern</button>');
-}
-function blattNotiz(art, id, titel) {
-  const s = st(art, id);
-  return blattInhalt(titel, feld("Notiz", s["Notiz"] || ""))
-    .replace('<div class="f" style="margin-top:12px">',
-      '<div class="f" style="margin-top:12px"><button class="pr" data-h="speichern" data-a="' + esc(art) + '" data-i="' + esc(id) + '">Speichern</button>');
-}
-function blattProfil(pid, kundeStelle) {
-  const teile = String(kundeStelle || "").split("|");
-  const p = profil(pid, teile[1] || "", teile[0] || "");
-  return blattInhalt("Muss/Kann · " + (teile[0] || ""), feld("Muss-Kriterien", p.muss) + feld("Kann-Kriterien", p.kann))
-    .replace('<div class="f" style="margin-top:12px">',
-      '<div class="f" style="margin-top:12px"><button class="pr" data-h="profilspeichern" data-i="' + esc(pid) + '">Speichern</button>');
-}
-function blattEntwurf(titel, text) {
-  return blattInhalt(titel, '<div class="m" style="color:#6b7785;font-size:12.5px">Entwurf – noch nicht versendet. Versand erst nach Freigabe.</div>'
-    + '<pre class="entwurf" id="entwurfText">' + esc(text) + '</pre>')
-    .replace('<div class="f" style="margin-top:12px">',
-      '<div class="f" style="margin-top:12px"><button class="pr" data-h="kopieren">Text kopieren</button>');
-}
-
-/* ---------- Zeichnen ---------- */
-function inhalt() {
-  switch (tab) {
-    case "eingang": return vEingang();
-    case "matching": return vMatching();
-    case "leads": return vLeads();
-    case "zulauf": return vZulauf();
-    case "niedrig": return vNiedrig();
-    case "nachfass": return vNachfass();
-    case "regel": return vRegel();
-    case "auswertung": return vAuswertung();
-    default: return vArbeit();
-  }
-}
+/* ---------- Aufbau ---------- */
 function zeichne() {
-  const root = q("#root");
-  if (!schluessel || !daten) {
-    const p = sessionStorage.getItem("zk_pass");
-    root.innerHTML = '<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>'
-      + '<p>Zugang für die Geschäftsführung. Bitte Name und Passwort eingeben.</p>'
-      + '<label>Name</label><input id="wer" value="' + esc(sessionStorage.getItem("zk_wer") || "tobias") + '" autocomplete="username">'
-      + '<label>Passwort</label><input id="pw" type="password" autocomplete="current-password">'
-      + '<div id="fehler" class="leer"></div>'
-      + '<button class="pr" id="los" style="width:100%">Anmelden</button></div>';
-    q("#los").onclick = async () => {
-      const pw = q("#pw").value, wer = q("#wer").value;
-      q("#fehler").textContent = "Prüfe …";
-      try { await anmelden(pw, wer); zeichne(); }
-      catch (e) { q("#fehler").textContent = e.message; }
-    };
-    q("#pw").addEventListener("keydown", e => { if (e.key === "Enter") q("#los").click(); });
-    if (p) { q("#pw").value = p; }
-    return;
-  }
-  root.innerHTML = kopf() + '<main>' + inhalt() + '</main>' + '<div id="fuss" style="position:fixed;bottom:14px;left:0;right:0;text-align:center;font-size:12px;color:#1f7a48;opacity:0;transition:opacity .3s;pointer-events:none"></div>';
+  q("#reiter").innerHTML = REITER.map(([k, t]) => `<button data-t="${k}" class="${k === tab ? "aktiv" : ""}">${esc(t)}</button>`).join("");
+  q("#stand").textContent = (daten && daten.stand ? "Stand " + daten.stand : "") + " · " + KM_MAX + " km · " +
+    (daten && daten.kennzahlen ? daten.kennzahlen.map(k => k[0] + " " + k[1]).join(" · ") : "") +
+    (neukunden && neukunden.stand ? " · Neukunden-Blatt " + new Date(neukunden.stand).toLocaleDateString("de-DE") : "");
+  q("#werkzeuge").innerHTML = `<button data-h="neu">Aktualisieren</button><button data-h="bm">Abmelden</button>`;
+  q("#inhalt").innerHTML = `<div class="such"><input id="suchfeld" placeholder="Suchen (Name, Ort, Kunde, Rolle …)" value="${esc(suche)}"></div>
+    <div class="kpi">${(daten.kennzahlen || []).map(k => `<div><div class="n">${esc(k[1])}</div><div class="l">${esc(k[0])}</div></div>`).join("")}</div>
+    <div class="fuss" id="fuss"></div><div id="liste"></div>`;
+  verdrahten();
+  liste();
+}
+function verdrahten() {
+  qa("#reiter button").forEach(b => b.onclick = () => { tab = b.dataset.t; zeichne(); });
+  qa("[data-h]").forEach(b => b.onclick = () => {
+    const h = b.dataset.h;
+    if (h === "bm") { sessionStorage.removeItem("zk_pass"); location.reload(); }
+    else if (h === "neu") location.reload();
+    else if (h === "zu") oeffne(null);
+  });
+  const s = q("#suchfeld");
+  if (s) s.oninput = () => { suche = s.value.trim(); liste(); };
+}
+function liste() {
+  const ziel = q("#liste");
+  if (tab === "arbeit") ziel.innerHTML = ansichtArbeit();
+  else if (tab === "eingang") ziel.innerHTML = ansichtEingang();
+  else if (tab === "matching") ziel.innerHTML = ansichtMatching();
+  else if (tab === "neukunden") ziel.innerHTML = ansichtNeukunden();
+  else if (tab === "zulauf") ziel.innerHTML = ansichtZulauf();
+  else if (tab === "nachkontrolle") ziel.innerHTML = ansichtNachkontrolle();
+  else if (tab === "nachfass") ziel.innerHTML = ansichtNachfass();
+  else if (tab === "regel") ziel.innerHTML = ansichtRegel();
+  else ziel.innerHTML = ansichtAuswertung();
   verdrahten();
 }
-
-function verdrahten() {
-  qa("[data-t]").forEach(b => b.onclick = () => { tab = b.dataset.t; filter = null; zeichne(); });
-  qa("[data-h]").forEach(b => b.onclick = async ev => {
-    const h = b.dataset.h;
-    if (h !== "zu" && h !== "kopieren") ev.stopPropagation();
-    switch (h) {
-      case "raus": abmelden(); break;
-      case "neu": await aktualisieren(); break;
-      case "matching": filter = b.dataset.w; tab = "matching"; zeichne(); break;
-      case "filterweg": filter = null; zeichne(); break;
-      case "bearb": case "eingbearb": case "zulaufbearb":
-        oeffne(blattBearbeiten(b.dataset.a || (h === "eingbearb" ? "eingang" : "zulauf"), b.dataset.i, b.dataset.w)); break;
-      case "zulauferl": { const s = st("zulauf", b.dataset.i); stSet("zulauf", b.dataset.i, "Erledigt", s["Erledigt"] === "ja" ? "" : "ja"); zeichne(); break; }
-      case "nachfasserl": { const s = st("nachfass", b.dataset.i); stSet("nachfass", b.dataset.i, "Erledigt", s["Erledigt"] === "ja" ? "" : "ja"); zeichne(); break; }
-      case "angesprochen": { const s = st("bestand", b.dataset.i); stSet("bestand", b.dataset.i, "Kunde angesprochen", s["Kunde angesprochen"] === "ja" ? "" : "ja"); zeichne(); break; }
-      case "leadkontakt": { const s = st("leads", b.dataset.i); stSet("leads", b.dataset.i, "Kontakt aufgenommen", s["Kontakt aufgenommen"] === "ja" ? "" : "ja"); zeichne(); break; }
-      case "profil": oeffne(blattProfil(b.dataset.i, b.dataset.w)); break;
-      case "profilspeichern": {
-        const p = profil(b.dataset.i, "", "");
-        p.muss = (q('[data-f="Muss-Kriterien"]') || {}).value || "";
-        p.kann = (q('[data-f="Kann-Kriterien"]') || {}).value || "";
-        p._t = Date.now();
-        await statusSpeichern(); oeffne(null); zeichne(); break;
-      }
-      case "speichern": {
-        const rr = st(b.dataset.a, b.dataset.i);
-        qa("[data-f]").forEach(f => { if (f.value === "") delete rr[f.dataset.f]; else rr[f.dataset.f] = f.value; });
-        rr._t = Date.now();
-        await statusSpeichern(); oeffne(null); zeichne(); break;
-      }
-      case "vorschlag": {
-        const z = (daten.bestand || []).find(x => kennung(x, ["Bewerber", "unsere offene Stelle", "Ort Einsatz"]) === b.dataset.i);
-        if (z) oeffne(blattEntwurf("Vorschlag · " + R(z, "Bewerber"), entwurfVorschlag(z))); break;
-      }
-      case "leadtext": {
-        const z = (daten.leads || []).find(x => kennung(x, ["Unternehmen (Neukunde)", "Anlass / Stelle"]) === b.dataset.i);
-        if (z) oeffne(blattEntwurf("Anschreiben · " + R(z, "Unternehmen (Neukunde)"), entwurfLead(z, R(z, "Ansprechpartner")))); break;
-      }
-      case "mailtext": {
-        const z = (daten.nachfass || []).find(x => kennung(x, ["Bewerber", "beworben auf"]) === b.dataset.i);
-        if (z) oeffne(blattEntwurf("Mail an " + R(z, "Bewerber"), entwurfNachfass(z))); break;
-      }
-      case "kopieren": {
-        const t = q("#entwurfText").textContent;
-        try { await navigator.clipboard.writeText(t); setFuss("Text kopiert"); }
-        catch (e) { const r = document.createRange(); r.selectNodeContents(q("#entwurfText")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); setFuss("Text markiert – jetzt kopieren"); }
-        break;
-      }
-      case "zu": oeffne(null); break;
-    }
+function kopfLeiste(arten) {
+  const b = ["<div class=\"knoepfe\">"];
+  b.push(`<button class="k ${filter === null ? "" : "hell"}" data-f="alle">Alle</button>`);
+  arten.forEach(a => b.push(`<button class="k ${filter === a ? "" : "hell"}" data-f="${esc(a)}">${esc(a)}</button>`));
+  b.push("</div>");
+  return b.join("");
+}
+function tagsAus(z, name) {
+  const t = [];
+  t.push(`<span class="tag ${istBlue(z) ? "blue" : "white"}">${istBlue(z) ? "Blue Collar" : "White Collar"}</span>`);
+  if (verteidigung(z)) t.push(`<span class="tag rot">Verteidigung · ZÜP/Ü2/SÜG</span>`);
+  const p = pr(name), offen = fehlendePunkte(name, z);
+  t.push(offen.length === 0 ? `<span class="tag ok">Profil vollständig</span>` : `<span class="tag warn">${offen.length} Punkt(e) offen</span>`);
+  if (p.suep) t.push(`<span class="tag ${p.suep_status === "liegt vor" ? "ok" : "warn"}">${esc(p.suep)} ${esc(p.suep_status || "offen")}</span>`);
+  if (p.sap) t.push(`<span class="tag">SAP</span>`);
+  if (p.google) t.push(`<span class="tag">Google Workspace</span>`);
+  if (p.m365) t.push(`<span class="tag">M365</span>`);
+  if (p.spez) String(p.spez).split(",").map(s => s.trim()).filter(Boolean).slice(0, 4).forEach(s => t.push(`<span class="tag">${esc(s)}</span>`));
+  if (p.cv) t.push(`<span class="tag ok">Lebenslauf</span>`);
+  return `<div class="tags">${t.join("")}</div>`;
+}
+function knopfZeile(z, art, id, name) {
+  const b = [];
+  b.push(`<button class="k" data-p="${esc(name)}">Profil & Kriterien</button>`);
+  if (art === "arbeit") b.push(`<button class="k hell" data-mat="${esc(name)}">Matching zeigen</button>`);
+  if (art === "bestand") b.push(`<button class="k gruen" data-vor="${esc(id)}">Vorschlag erstellen</button>`);
+  b.push(`<button class="k hell" data-rs="${esc(name)}">Rücksprache</button>`);
+  return `<div class="knoepfe">${b.join("")}</div>`;
+}
+/* ---------- Arbeitsliste ---------- */
+function ansichtArbeit() {
+  const alle = (daten.arbeitsliste || []).filter(passtSuche);
+  const zs = alle.filter(z => !filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z)));
+  let h = kopfLeiste(["Blue Collar", "White Collar"]);
+  h += `<h2>Arbeitsliste · ${zs.length} Bewerber</h2>`;
+  if (!zs.length) h += `<div class="karte">Keine Bewerber für diese Auswahl.</div>`;
+  zs.forEach(z => {
+    const id = kArt(z), name = R(z, "Bewerber"), p = pr(name), offen = fehlendePunkte(name, z);
+    const geprueft = p.geprueft === "ja";
+    h += `<div class="karte">
+      <div class="titel">${esc(name)}</div>
+      <div class="zeile">${esc(R(z, "Wohnort"))} · ${esc(R(z, "Zielrolle / Beruf"))} · ${esc(R(z, "Niederlassung"))} · im System seit ${esc(R(z, "im System seit"))}</div>
+      <div class="zeile">Bestand: ${esc(R(z, "Vorhandene Kunden"))} · Neukunden: ${esc(R(z, "Neukunden-Leads"))} · ${esc(R(z, "Nächster Schritt"))}${R(z, "Verantwortlicher") ? " · " + esc(R(z, "Verantwortlicher")) : " · Verantwortlicher fehlt"}</div>
+      ${tagsAus(z, name)}
+      ${offen.length ? `<div class="zeile"><b>Was fehlt:</b> ${esc(offen.join(", "))}</div>` : ""}
+      <div class="knoepfe">
+        <button class="k ${geprueft ? "gruen" : "hell"}" data-g="${esc(id)}|${esc(name)}|geprueft">${geprueft ? "✓ Bewerbung geprüft" : "Bewerbung prüfen"}</button>
+        <button class="k hell" data-e="arbeit|${esc(id)}">Bearbeiten</button>
+        <button class="k" data-p="${esc(name)}">Profil & Kriterien</button>
+        <button class="k hell" data-mat="${esc(name)}">Passende Stellen</button>
+        <button class="k hell" data-rs="${esc(name)}">Rücksprache</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Eingang ---------- */
+function ansichtEingang() {
+  const zs = (daten.eingang || []).filter(passtSuche);
+  let h = `<h2>Eingang · ${zs.length} Bewerbungen (Ziel: Rückmeldung in 48 Stunden)</h2>`;
+  zs.forEach(z => {
+    const id = kEingang(z), r = st("eingang", id);
+    h += `<div class="karte">
+      <div class="titel">${esc(R(z, "Bewerber"))}</div>
+      <div class="zeile">${esc(R(z, "Eingang"))} · ${esc(R(z, "Stelle"))} · ${esc(R(z, "Kunde"))} · ${esc(R(z, "Niederlassung"))}</div>
+      <div class="zeile">Status ${esc(R(z, "Status"))} · Recruiter ${esc(R(z, "Recruiter"))} · Match Bestand ${esc(R(z, "Match Bestand"))} · neue Stellen ${esc(R(z, "Match neue Stellen"))}</div>
+      ${tagsAus(z, R(z, "Bewerber"))}
+      <div class="knoepfe">
+        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(kPerson(R(z, "Bewerber")))}|${esc(R(z, "Bewerber"))}|erledigt_eingang">${r.erledigt ? "✓ bearbeitet" : "bearbeitet"}</button>
+        <button class="k" data-p="${esc(R(z, "Bewerber"))}">Profil & Kriterien</button>
+        <button class="k hell" data-e="eingang|${esc(id)}">Bearbeiten</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Matching (Bestandskunden, 60 km) ---------- */
+function ansichtMatching() {
+  let zs = (daten.bestand || []).filter(passtSuche);
+  zs = zs.filter(z => { const km = parseFloat(String(R(z, "km")).replace(",", ".")); return !isFinite(km) || km <= KM_MAX; });
+  if (filter === "Blue Collar") zs = zs.filter(istBlue);
+  if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
+  if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
+  h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
+    <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung sortiert. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
+  zs.forEach(z => {
+    const km = parseFloat(String(R(z, "km")).replace(",", ".")), id = kBest(z), name = R(z, "Bewerber");
+    const offen = fehlendePunkte(name, z), p = pr(name);
+    h += `<div class="karte">
+      <div class="titel">${esc(name)} <span class="tag ${km <= 30 ? "ok" : km <= KM_MAX ? "warn" : "rot"}">${isFinite(km) ? km.toFixed(1) + " km" : "km ?"}</span></div>
+      <div class="zeile">${esc(R(z, "unsere offene Stelle"))} · ${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
+      <div class="zeile">${esc(R(z, "Einschätzung"))}${R(z, "Niederlassung") ? " · " + esc(R(z, "Niederlassung")) : ""}</div>
+      ${tagsAus(z, name)}
+      ${offen.length ? `<div class="zeile"><b>Was fehlt:</b> ${esc(offen.join(", "))}</div>` : `<div class="zeile"><b>Alle Pflichtpunkte liegen vor.</b></div>`}
+      <div class="knoepfe">
+        <button class="k gruen" data-vor="${esc(id)}">Vorschlag erstellen</button>
+        <button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
+        <button class="k hell" data-p="${esc(name)}">Profil & Kriterien</button>
+        <button class="k ${st("bestand", id).angesprochen ? "gruen" : "hell"}" data-g="${esc(id)}|${esc(name)}|angesprochen">${st("bestand", id).angesprochen ? "✓ Kunde angesprochen" : "Kunde ansprechen"}</button>
+        <button class="k hell" data-e="bestand|${esc(id)}">Notiz</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Neukunden: eigenes Blatt ---------- */
+function ansichtNeukunden() {
+  let zs = (daten.leads || []).filter(passtSuche);
+  if (filter === "Blue Collar") zs = zs.filter(istBlue);
+  if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
+  if (filter === "nur A-Kunden") zs = zs.filter(z => /^a/i.test(String(R(z, "Kunde A/B"))));
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nur A-Kunden"]);
+  h += `<h2>Neukunden · ${zs.length} Leads (eigenes Blatt)</h2>
+    <div class="hinweis">A-Kunden sprechen wir mit Namen an, B-Kunden haben oft nur eine info@-Adresse – dort kein Kaltkontakt (§ 7 UWG). Alle Eingaben hier bleiben getrennt von der Arbeitsliste.</div>`;
+  zs.forEach(z => {
+    const id = kLead(z), r = nk(id), aKunde = /^a/i.test(String(R(z, "Kunde A/B")));
+    h += `<div class="karte">
+      <div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${aKunde ? "ok" : "grau"}">${aKunde ? "A-Kunde" : "B-Kunde"}</span></div>
+      <div class="zeile">${esc(R(z, "Bewerber"))} · ${esc(R(z, "Zielrolle / Beruf"))} · ${esc(R(z, "Wohnort"))} · Passung ${esc(R(z, "Passung"))}</div>
+      <div class="zeile">${esc(R(z, "Anlass / Stelle"))}${R(z, "Ansprechpartner") ? " · Ansprechpartner: " + esc(R(z, "Ansprechpartner")) : ""}${R(z, "Kontaktweg") ? " · " + esc(R(z, "Kontaktweg")) : ""}</div>
+      ${tagsAus(z, R(z, "Bewerber"))}
+      <div class="knoepfe">
+        ${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+        <button class="k ${r.kontakt ? "gruen" : "hell"}" data-nk="${esc(id)}|kontakt">${r.kontakt ? "✓ Kontakt aufgenommen" : "Kontakt aufgenommen"}</button>
+        ${aKunde ? `<button class="k gruen" data-nkvor="${esc(id)}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}
+        <button class="k hell" data-nke="${esc(id)}">Bearbeiten</button>
+        <button class="k hell" data-p="${esc(R(z, "Bewerber"))}">Profil & Kriterien</button>
+      </div>
+      ${r.notiz ? `<div class="zeile"><b>Notiz:</b> ${esc(r.notiz)}</div>` : ""}
+      ${r.ergebnis ? `<div class="zeile"><b>Ergebnis:</b> ${esc(r.ergebnis)}</div>` : ""}
+    </div>`;
+  });
+  return h;
+}
+/* ---------- Zulauf ohne Daten ---------- */
+function ansichtZulauf() {
+  const zs = (daten.zulauf || []).filter(passtSuche);
+  let h = `<h2>Zulauf ohne Daten · ${zs.length}</h2><div class="hinweis">Bewerbungen, bei denen Angaben fehlen – hier eintragen, dann rutscht der Bewerber ins Matching.</div>`;
+  zs.forEach(z => {
+    const id = kZulauf(z), r = st("zulauf", id), name = R(z, "Bewerber");
+    h += `<div class="karte">
+      <div class="titel">${esc(name)}</div>
+      <div class="zeile">${esc(R(z, "Eingang"))} · ${esc(R(z, "beworben auf"))} · ${esc(R(z, "Kunde"))} · ${esc(R(z, "Niederlassung"))} · ${esc(R(z, "Wohnort"))}</div>
+      <div class="zeile"><b>Was fehlt:</b> ${esc(R(z, "Was fehlt"))}</div>
+      ${tagsAus(z, name)}
+      ${fehlendePunkte(name, z).length ? `<div class="zeile"><b>Fürs Matching fehlt:</b> ${esc(fehlendePunkte(name, z).join(", "))}</div>` : ""}
+      <div class="knoepfe">
+        <button class="k" data-p="${esc(name)}">Angaben ergänzen (Profil)</button>
+        <button class="k hell" data-rs="${esc(name)}">Rücksprache</button>
+        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(id)}|${esc(name)}|erledigt">${r.erledigt ? "✓ erledigt" : "erledigt"}</button>
+        <button class="k hell" data-e="zulauf|${esc(id)}">Bearbeiten</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- unter 65 % ---------- */
+function ansichtNachkontrolle() {
+  const zs = (daten.nachkontrolle || []).filter(passtSuche);
+  let h = `<h2>Unter 65 % Passung · ${zs.length}</h2><div class="hinweis">Nachkontrolle: prüfen, ob eine andere Stelle, ein anderer Kunde oder eine Rücksprache den Fall dreht.</div>`;
+  zs.forEach(z => {
+    const id = kNachk(z), name = R(z, "Bewerber");
+    h += `<div class="karte">
+      <div class="titel">${esc(name)} <span class="tag rot">${esc(R(z, "Passung"))}</span></div>
+      <div class="zeile">${esc(R(z, "Stelle / Anlass"))} · ${esc(R(z, "Arbeitgeber"))} · ${esc(R(z, "Region"))} · Quelle ${esc(R(z, "Quelle"))}</div>
+      <div class="zeile"><b>Grund:</b> ${esc(R(z, "Grund"))}</div>
+      ${tagsAus(z, name)}
+      <div class="knoepfe">
+        <button class="k" data-mat="${esc(name)}">Andere Stellen zeigen</button>
+        <button class="k hell" data-p="${esc(name)}">Profil & Kriterien</button>
+        <button class="k hell" data-rs="${esc(name)}">Rücksprache</button>
+        <button class="k hell" data-e="nachkontrolle|${esc(id)}">Notiz</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Nachfassen ---------- */
+function ansichtNachfass() {
+  const zs = (daten.nachfass || []).filter(passtSuche);
+  let h = `<h2>Nachfassen · ${zs.length}</h2><div class="hinweis">Wiedervorlage: fehlende Angaben nachfassen und Ergebnis festhalten.</div>`;
+  zs.forEach(z => {
+    const id = kNachf(z), r = st("nachfass", id), name = R(z, "Bewerber");
+    h += `<div class="karte">
+      <div class="titel">${esc(name)}</div>
+      <div class="zeile">${esc(R(z, "beworben auf"))} · ${esc(R(z, "Niederlassung"))} · ${esc(R(z, "Wohnort"))} · ${esc(R(z, "Berufsrichtung"))}</div>
+      <div class="zeile"><b>Fehlt noch:</b> ${esc(R(z, "Fehlt noch"))} · Recruiter ${esc(R(z, "Recruiter"))}</div>
+      ${tagsAus(z, name)}
+      <div class="knoepfe">
+        <button class="k" data-rs="${esc(name)}">Rücksprache</button>
+        <button class="k hell" data-p="${esc(name)}">Angaben ergänzen</button>
+        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(id)}|${esc(name)}|erledigt">${r.erledigt ? "✓ nachgefasst" : "nachgefasst"}</button>
+        <button class="k hell" data-e="nachfass|${esc(id)}">Bearbeiten</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Regel & Ansprechtext ---------- */
+function ansichtRegel() {
+  let h = `<h2>Regel & Ansprechtext</h2><h2 style="margin-top:12px">Regelwerk</h2><div class="karte">`;
+  (daten.regel || []).forEach(z => { h += `<div class="zeile">${esc(Object.values(z).join(" – "))}</div>`; });
+  h += `</div><h2>Ansprechtexte der Niederlassungen</h2><div class="karte">`;
+  (daten.ansprechtext || []).forEach(z => {
+    const k = Object.values(z);
+    h += `<details><summary>${esc(k[0] || "Text")}</summary><pre>${esc(k.slice(1).filter(Boolean).join("\n\n"))}</pre>
+      <button class="k hell" data-kop="${esc(k.slice(1).filter(Boolean).join("\n\n"))}">Kopieren</button></details>`;
+  });
+  h += `</div>`;
+  return h;
+}
+/* ---------- Auswertung ---------- */
+function ansichtAuswertung() {
+  const a = daten.arbeitsliste || [], b = daten.bestand || [], l = daten.leads || [];
+  const ohneV = a.filter(z => !st("arbeit", kArt(z)).verantwortlicher).length;
+  const voll = a.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0).length;
+  const blau = a.filter(istBlue).length;
+  let h = `<h2>Auswertung</h2><div class="kpi">
+    <div><div class="n">${a.length}</div><div class="l">Bewerber in der Arbeitsliste</div></div>
+    <div><div class="n">${ohneV}</div><div class="l">ohne Verantwortlichen</div></div>
+    <div><div class="n">${voll}</div><div class="l">Profil vollständig</div></div>
+    <div><div class="n">${blau}/${a.length - blau}</div><div class="l">Blue / White</div></div>
+    <div><div class="n">${b.length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
+    <div><div class="n">${l.length}</div><div class="l">Neukunden-Leads</div></div>
+  </div>
+  <div class="karte"><b>Wo es klemmt</b>
+  <div class="zeile">Ohne Verantwortlichen: ${ohneV}</div>
+  <div class="zeile">Ohne vollständiges Profil: ${a.length - voll}</div>
+  <div class="zeile">Ohne Lebenslauf: ${Object.keys(status.profil).filter(k => !status.profil[k].cv).length}</div>
+  <div class="zeile">Profile angefordert: ${Object.keys(status.profil).filter(k => status.profil[k].profil_angefordert).length}</div>
+  <div class="zeile">Profile geschrieben: ${Object.keys(status.profil).filter(k => status.profil[k].profil).length}</div></div>`;
+  return h;
+}
+/* ---------- Verbinden ---------- */
+let blatteName = null;
+function oeffne(html, nach) {
+  const alt = q(".tuch"); if (alt) alt.remove();
+  if (html) { document.body.insertAdjacentHTML("beforeend", html); verdrahten(); verdrahtenListe(); if (nach) nach(); }
+}
+function verdrahtenListe() {
+  qa("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f === "alle" ? null : b.dataset.f; liste(); });
+  qa("[data-g]").forEach(b => b.onclick = () => {
+    const [id, name, feld] = b.dataset.g.split("|");
+    const art = tab === "matching" ? "bestand" : tab;
+    const r = st(art, id);
+    if (r[feld] === "ja") delete r[feld]; else r[feld] = "ja";
+    r._t = Date.now();
+    statusSpeichern(); liste();
+  });
+  qa("[data-e]").forEach(b => b.onclick = () => blattBearbeiten(b.dataset.e.split("|")[0], b.dataset.e.split("|")[1]));
+  qa("[data-p]").forEach(b => b.onclick = () => blattProfil(b.dataset.p));
+  qa("[data-mat]").forEach(b => b.onclick = () => { filter = null; suche = b.dataset.mat; tab = "matching"; zeichne(); });
+  qa("[data-rs]").forEach(b => b.onclick = () => blattRuecksprache(b.dataset.rs));
+  qa("[data-vor]").forEach(b => b.onclick = () => { const z = (daten.bestand || []).find(x => kBest(x) === b.dataset.vor); if (z) blattText("Kundenvorlage · " + R(z, "Bewerber"), entwurfVorschlag(z)); });
+  qa("[data-link]").forEach(b => b.onclick = () => { const [kunde, stelle, ort] = b.dataset.link.split("|"); blattText("Stelle & Link", stelleUndLink(kunde, stelle, ort)); });
+  qa("[data-url]").forEach(b => b.onclick = () => window.open(b.dataset.url, "_blank"));
+  qa("[data-nk]").forEach(b => b.onclick = () => { const [id, feld] = b.dataset.nk.split("|"); const r = nk(id); if (r[feld]) delete r[feld]; else r[feld] = "ja"; r._t = Date.now(); neukundenSpeichern(); liste(); });
+  qa("[data-nkvor]").forEach(b => b.onclick = () => { const z = (daten.leads || []).find(x => kLead(x) === b.dataset.nkvor); if (z) blattText("Anschreiben Neukunde · " + R(z, "Unternehmen (Neukunde)"), entwurfNeukunde(z)); });
+  qa("[data-nke]").forEach(b => b.onclick = () => blattBearbeitenNeukunde(b.dataset.nke));
+  qa("[data-kop]").forEach(b => b.onclick = () => { kopiere(b.dataset.kop.replace(/⏎/g, "\n")); });
+}
+function blattText(titel, text) {
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>${esc(titel)}</h3><pre id="txtbereich">${esc(text)}</pre>
+    <div class="knoepfe"><button class="k" data-kop2="1">Text kopieren</button><button class="k hell" data-h="zu">Schließen</button></div>
+    <div class="hinweis">Raus geht erst nach Freigabe durch Thomas – hier nur Text zum Einfügen in Outlook.</div></div></div>`, () => {
+    q("[data-kop2]").onclick = () => kopiere(q("#txtbereich").textContent);
   });
 }
-function oeffne(html) {
-  const alt = q(".tuch");
-  if (alt) alt.remove();
-  if (html) { document.body.insertAdjacentHTML("beforeend", html); verdrahten(); }
+function blattBearbeiten(art, id) {
+  const felder = (FELDER[art] || []).filter(f => !/geprüft|Match |Passung|Titelbezug|Einschätzung|km|im System|^Vorhandene|^Neukunden-Leads$|^Status$|^Eingang$|^Quelle$|^Grund$|^Anlass/.test(f));
+  const r = st(art, id);
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Notizen bearbeiten</h3>
+    ${felder.map(f => `<label>${esc(f)}</label><input data-feld="${esc(f)}" value="${esc(r[f] || "")}">`).join("")}
+    <label>Freie Notiz</label><textarea data-feld="notiz">${esc(r.notiz || "")}</textarea>
+    <div class="knoepfe"><button class="k" data-sich="1">Speichern</button><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
+    q("[data-sich]").onclick = () => {
+      const rr = st(art, id);
+      qa("[data-feld]").forEach(f => { if (f.value === "") delete rr[f.dataset.feld]; else rr[f.dataset.feld] = f.value; });
+      rr._t = Date.now(); statusSpeichern(); oeffne(null); liste();
+    };
+  });
 }
-async function aktualisieren() {
-  setFuss("Lade …");
-  const pw = sessionStorage.getItem("zk_pass");
-  try { await anmelden(pw, sessionStorage.getItem("zk_wer")); zeichne(); setFuss("Aktualisiert"); }
-  catch (e) { setFuss(e.message); }
+function blattBearbeitenNeukunde(id) {
+  const felder = ["Kontaktweg", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"];
+  const r = nk(id);
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Neukunde bearbeiten</h3>
+    ${felder.map(f => `<label>${esc(f)}</label><input data-nf="${esc(f)}" value="${esc(r[f] || "")}">`).join("")}
+    <div class="knoepfe"><button class="k" data-nsich="1">Speichern</button><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
+    q("[data-nsich]").onclick = () => {
+      const rr = nk(id);
+      qa("[data-nf]").forEach(f => { if (f.value === "") delete rr[f.dataset.nf]; else rr[f.dataset.nf] = f.value; });
+      rr._t = Date.now(); neukundenSpeichern(); oeffne(null); liste();
+    };
+  });
 }
-
+/* ---------- Stelle & Link ---------- */
+function stelleUndLink(kunde, stelle, ort) {
+  const lead = (daten.leads || []).find(z => String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) && String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) === String(kunde || "").toLowerCase().slice(0, 12));
+  const zeilen = [];
+  zeilen.push("Stelle: " + (stelle || "—"));
+  zeilen.push("Kunde: " + (kunde || "—"));
+  zeilen.push("Einsatzort: " + (ort || "—"));
+  if (lead && R(lead, "Link")) zeilen.push("Stellen-Link (Karriereseite des Kunden): " + R(lead, "Link"));
+  else zeilen.push("Karriereseite/Suche: https://www.google.com/search?q=" + encodeURIComponent("Karriere " + (kunde || "") + " " + (ort || "")));
+  zeilen.push("Im Cockpit: " + (stelle || ""));
+  zeilen.push("Umkreis: gilt bis " + KM_MAX + " km (Wohnort × Einsatzort).");
+  return zeilen.join("\n");
+}
+/* ---------- Bewerberprofil ---------- */
+function passendeFuer(name) {
+  const n = String(name || "").toLowerCase();
+  return {
+    bestand: (daten.bestand || []).filter(z => String(R(z, "Bewerber")).toLowerCase() === n),
+    leads: (daten.leads || []).filter(z => String(R(z, "Bewerber")).toLowerCase() === n)
+  };
+}
+function blattProfil(name) {
+  const p = pr(name), z0 = (daten.bestand || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) ||
+    (daten.arbeitsliste || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) || {};
+  const passt = passendeFuer(name);
+  const jn = (id, wert, txt) => `<select id="${id}"><option value="">${txt}</option><option value="ja" ${wert === "ja" ? "selected" : ""}>ja</option></select>`;
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Profil & Kriterien · ${esc(name)}</h3>
+    <div class="hinweis">${esc(R(z0, "Zielrolle / Beruf"))} · ${esc(R(z0, "Wohnort"))} · ${verteidigung(z0) ? "Kunde Verteidigung – ZÜP/Ü2/SÜG nötig" : "ziviler Kunde"}</div>
+    <div class="feld">
+      <div><label>Ausbildung (Beruf, Abschluss, Jahr)</label><input id="pr_ausbildung" value="${esc(p.ausbildung || "")}"></div>
+      <div><label>Ausbildung geprüft</label>${jn("pr_ausbildung_geprueft", p.ausbildung_geprueft, "noch offen")}</div>
+      <div><label>Tätigkeit (klar beschrieben)</label><input id="pr_taetigkeit" value="${esc(p.taetigkeit || "")}"></div>
+      <div><label>Tätigkeit klar</label>${jn("pr_taetigkeit_klar", p.taetigkeit_klar, "noch offen")}</div>
+      <div><label>Studium abgeschlossen</label>${jn("pr_studium", p.studium, "nein / offen")}</div>
+      <div><label>Studienfach</label><input id="pr_studium_fach" value="${esc(p.studium_fach || "")}"></div>
+      <div><label>Zertifikate / Weiterbildungen</label><input id="pr_zert" value="${esc(p.zert || "")}"></div>
+      <div><label>Verfügbar ab</label><input id="pr_verfuegbar" value="${esc(p.verfuegbar || "")}"></div>
+    </div>
+    <label>IT-Kenntnisse</label>
+    <div class="knoepfe">
+      <button class="k ${p.sap ? "" : "hell"}" data-it="sap">SAP</button>
+      <button class="k ${p.google ? "" : "hell"}" data-it="google">Google Workspace</button>
+      <button class="k ${p.m365 ? "" : "hell"}" data-it="m365">M365</button>
+    </div>
+    <label>Spezialisierungen (mit Komma)</label>
+    <input id="pr_spez" value="${esc(p.spez || "")}" placeholder="Konstruktion, CATIA V4, CATIA V5, Avionik, SPS …">
+    <div class="feld">
+      <div><label>Sicherheitsüberprüfung (Verteidigung)</label>
+        <select id="pr_suep"><option value="">nicht nötig / offen</option>
+        ${["ZÜP", "Ü2", "SÜG"].map(s => `<option ${p.suep === s ? "selected" : ""}>${s}</option>`).join("")}</select></div>
+      <div><label>Stand der Überprüfung</label>
+        <select id="pr_suep_status"><option value="offen" ${p.suep_status === "offen" ? "selected" : ""}>beantragt/offen</option>
+        <option value="läuft" ${p.suep_status === "läuft" ? "selected" : ""}>läuft</option>
+        <option value="liegt vor" ${p.suep_status === "liegt vor" ? "selected" : ""}>liegt vor</option></select></div>
+    </div>
+    <label>Thema 1 (z. B. Gehaltsvorstellung, Wechselmotivation, Schichtbereitschaft)</label>
+    <input id="pr_thema1" value="${esc(p.thema1 || "")}" placeholder="Thema und Stand">
+    <label>Thema 2</label>
+    <input id="pr_thema2" value="${esc(p.thema2 || "")}" placeholder="Thema und Stand">
+    <label>Rücksprache mit dem Bewerber</label>
+    <textarea id="pr_rueck" placeholder="Was wurde besprochen, was ist zu klären?">${esc(p.rueck || "")}</textarea>
+    <label>Rücksprache am</label><input type="date" id="pr_rueck_am" value="${esc(p.rueck_am || "")}">
+    <label>Lebenslauf (PDF oder Word, bis ca. 1,5 MB)</label>
+    <input type="file" id="pr_cv" accept=".pdf,.doc,.docx,.rtf,.txt">
+    <div class="hinweis" id="cvstand">${p.cv ? "hinterlegt: " + esc(p.cv.name) + " (" + Math.round(p.cv.groesse / 1024) + " KB, " + esc(p.cv.stand || "") + ")" : "kein Lebenslauf hinterlegt"}</div>
+    <label>Profil für den Kunden (schreibt der Assistent aus dem Lebenslauf)</label>
+    <textarea id="pr_profil" style="min-height:180px">${esc(p.profil || "")}</textarea>
+    <div class="knoepfe">
+      <button class="k" data-prs="1">Speichern</button>
+      <button class="k gold" data-prf="1">${p.profil_angefordert ? "Profil wurde angefordert" : "Profil schreiben lassen"}</button>
+      <button class="k hell" data-prd="1">Kundenvorlage erstellen</button>
+      <button class="k hell" data-prr="1">Rücksprache-Mail</button>
+    </div>
+    <div class="hinweis">„Profil schreiben lassen" legt den Lebenslauf in die Warteschlange – das Profil steht dann hier, meist innerhalb einer Stunde.</div>
+    <h3 style="margin-top:16px">Passende Stellen (automatisch, ${KM_MAX} km)</h3>
+    ${(passt.bestand.length ? passt.bestand.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
+      <div class="zeile">${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
+      <div class="knoepfe"><button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
+      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`)}
+    ${passt.leads.length ? `<h3>Neukunden mit passender Stelle</h3>` + passt.leads.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(z, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(z, "Kunde A/B"))}</span></div>
+      <div class="zeile">${esc(R(z, "Anlass / Stelle"))} · Passung ${esc(R(z, "Passung"))}${R(z, "Ansprechpartner") ? " · " + esc(R(z, "Ansprechpartner")) : ""}</div>
+      <div class="knoepfe">${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+      ${/^a/i.test(String(R(z, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(z))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("") : ""}
+    <div class="knoepfe"><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => bindProfil(name));
+}
+function bindProfil(name) {
+  qa("[data-it]").forEach(b => b.onclick = () => { const p = pr(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(name); });
+  q("#pr_cv").onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (f.size > 1600000) { setFuss("Die Datei ist größer als 1,5 MB – bitte verkleinern."); return; }
+    const fr = new FileReader();
+    fr.onload = () => {
+      const p = pr(name);
+      p.cv = { name: f.name, typ: f.type, groesse: f.size, stand: new Date().toISOString().slice(0, 10), b64: String(fr.result).split(",")[1] };
+      p.profil_angefordert = new Date().toISOString();
+      p._t = Date.now(); statusSpeichern();
+      setFuss("Lebenslauf hinterlegt – Profil wird geschrieben.");
+      oeffne(null); blattProfil(name);
+    };
+    fr.readAsDataURL(f);
+  };
+  q("[data-prs]").onclick = () => {
+    const p = pr(name);
+    [["pr_ausbildung", "ausbildung"], ["pr_ausbildung_geprueft", "ausbildung_geprueft"], ["pr_taetigkeit", "taetigkeit"],
+     ["pr_taetigkeit_klar", "taetigkeit_klar"], ["pr_studium", "studium"], ["pr_studium_fach", "studium_fach"],
+     ["pr_zert", "zert"], ["pr_verfuegbar", "verfuegbar"], ["pr_spez", "spez"], ["pr_suep", "suep"],
+     ["pr_suep_status", "suep_status"], ["pr_thema1", "thema1"], ["pr_thema2", "thema2"], ["pr_rueck", "rueck"],
+     ["pr_rueck_am", "rueck_am"], ["pr_profil", "profil"]].forEach(([id, feld]) => {
+      const el = q("#" + id); if (!el) return;
+      if (el.value === "") delete p[feld]; else p[feld] = el.value;
+    });
+    p._t = Date.now(); statusSpeichern(); setFuss("Profil gespeichert."); liste();
+  };
+  q("[data-prf]").onclick = () => {
+    const p = pr(name);
+    p.profil_angefordert = new Date().toISOString(); p._t = Date.now(); statusSpeichern();
+    setFuss("Profil angefordert – steht in der Regel innerhalb einer Stunde hier.");
+    oeffne(null); blattProfil(name);
+  };
+  q("[data-prd]").onclick = () => blattText("Kundenvorlage · " + name, profilAnKunde(name));
+  q("[data-prr]").onclick = () => blattText("Rücksprache-Mail · " + name, entwurfRuecksprache(name));
+}
+function blattRuecksprache(name) {
+  const p = pr(name);
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Rücksprache · ${esc(name)}</h3>
+    <label>Thema 1</label><input id="rs1" value="${esc(p.thema1 || "")}" placeholder="z. B. Gehaltswunsch, Schichtbereitschaft">
+    <label>Thema 2</label><input id="rs2" value="${esc(p.thema2 || "")}" placeholder="z. B. Wechselmotivation, Umzug">
+    <label>Notiz zur Rücksprache</label><textarea id="rsn" placeholder="Was ist besprochen, was offen?">${esc(p.rueck || "")}</textarea>
+    <label>Rücksprache am</label><input type="date" id="rsd" value="${esc(p.rueck_am || "")}">
+    <div class="knoepfe"><button class="k" data-rss="1">Speichern</button>
+      <button class="k gold" data-rsm="1">Rücksprache-Mail</button>
+      <button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
+    q("[data-rss]").onclick = () => {
+      const p2 = pr(name);
+      [["rs1", "thema1"], ["rs2", "thema2"], ["rsn", "rueck"], ["rsd", "rueck_am"]].forEach(([id, f]) => {
+        const el = q("#" + id); if (el.value === "") delete p2[f]; else p2[f] = el.value;
+      });
+      p2._t = Date.now(); statusSpeichern(); oeffne(null); setFuss("Rücksprache gespeichert."); liste();
+    };
+    q("[data-rsm]").onclick = () => blattText("Rücksprache-Mail · " + name, entwurfRuecksprache(name));
+  });
+}
+/* ---------- Profile und Entwürfe ---------- */
+function kriterienBlock(name, z) {
+  const p = pr(name), zl = [];
+  const zeig = (t, w) => { if (w) zl.push(t + ": " + w); };
+  zeig("Ausbildung", (p.ausbildung || "") + (p.ausbildung_geprueft === "ja" ? " (geprüft)" : p.ausbildung ? " (Prüfung läuft)" : ""));
+  zeig("Studium", p.studium === "ja" ? "abgeschlossen" + (p.studium_fach ? " – " + p.studium_fach : "") : "");
+  zeig("Tätigkeit", p.taetigkeit);
+  zeig("IT-Kenntnisse", [p.sap ? "SAP" : "", p.google ? "Google Workspace" : "", p.m365 ? "M365" : ""].filter(Boolean).join(", "));
+  zeig("Spezialisierungen", p.spez);
+  zeig("Zertifikate / Weiterbildungen", p.zert);
+  zeig("Verfügbar ab", p.verfuegbar);
+  const suep = p.suep ? (p.suep + " – Stand: " + (p.suep_status || "offen")) : (verteidigung(z) ? "ZÜP/Ü2/SÜG erforderlich, Stand klären" : "");
+  zeig("Sicherheitsüberprüfung", suep);
+  zeig("Wohnort", R(z, "Wohnort"));
+  zeig("Zielrolle", R(z, "Zielrolle / Beruf"));
+  zeig("Kragenfarbe", istBlue(z) ? "Blue Collar (gewerblich/technisch)" : "White Collar (kaufmännisch/ingenieurmäßig)");
+  return zl.join("\n");
+}
+function profilAnKunde(name) {
+  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const p = pr(name), offen = fehlendePunkte(name, z);
+  const kopf = [
+    "KANDIDATENPROFIL (intern, Stand " + new Date().toLocaleDateString("de-DE") + ")",
+    "",
+    "Bewerber: " + name,
+    "Position: " + (R(z, "Zielrolle / Beruf") || R(z, "unsere offene Stelle") || "—"),
+    "Einsatzort/Wohnort: " + (R(z, "Ort Einsatz") || R(z, "Wohnort") || "—"),
+    ""
+  ];
+  const mitte = [p.profil ? p.profil : "(Profil noch nicht geschrieben – im Profil-Blatt „Profil schreiben lassen“ antippen.)", "", "Eckdaten:", kriterienBlock(name, z)];
+  const ende = ["", "Offene Punkte: " + (offen.length ? offen.join(", ") : "keine")];
+  return kopf.concat(mitte).concat(ende).join("\n");
+}
+function entwurfVorschlag(z) {
+  const name = R(z, "Bewerber"), p = pr(name);
+  return "Betreff: " + (R(z, "unsere offene Stelle") || "Ihre offene Stelle") + " – Kandidatenvorschlag " + name + "\n\n" +
+    "Guten Tag,\n\n" +
+    "für Ihre Stelle „" + R(z, "unsere offene Stelle") + "\u201c in " + R(z, "Ort Einsatz") + " schlage ich Ihnen " + name + " vor.\n\n" +
+    kriterienBlock(name, z) + "\n\n" +
+    (p.profil ? "Zum Bewerber:\n" + p.profil + "\n\n" : "") +
+    "Der Bewerber ist verfügbar" + (p.verfuegbar ? " ab " + p.verfuegbar : "") + " und wohnt " + R(z, "Wohnort") + " (" + R(z, "km") + " km zum Einsatzort).\n\n" +
+    "Sagen Sie mir kurz Bescheid, ob wir den Lebenslauf und die Unterlagen zusenden sollen – dann liegt alles umgehend bei Ihnen.\n\n" +
+    "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
+}
+function entwurfNeukunde(z) {
+  const name = R(z, "Bewerber");
+  return "Betreff: " + (R(z, "Anlass / Stelle")) + " – passender Bewerber aus unserem Netz\n\n" +
+    "Guten Tag" + (R(z, "Ansprechpartner") ? " " + R(z, "Ansprechpartner") : "") + ",\n\n" +
+    "wir sind auf Ihre Ausschreibung „" + R(z, "Anlass / Stelle") + "\u201c aufmerksam geworden" + (R(z, "Link") ? " (" + R(z, "Link") + ")" : "") + ".\n\n" +
+    "Für diese Position haben wir " + name + " im Zugang, " + R(z, "Wohnort") + ", " + R(z, "Zielrolle / Beruf") + ":\n\n" +
+    kriterienBlock(name, z) + "\n\n" +
+    "Sollen wir Ihnen den Lebenslauf und ein Kurzprofil zusenden? Wir vermitteln Fach- und Führungskräfte in der Luftfahrt und im technischen Umfeld, Festanstellung und Überlassung.\n\n" +
+    "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
+}
+function entwurfRuecksprache(name) {
+  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const p = pr(name), offen = fehlendePunkte(name, z);
+  return "Betreff: Ihre Bewerbung – kurze Rückfragen\n\n" +
+    "Guten Tag " + (name.split(" ").slice(-1)[0] || name) + ",\n\n" +
+    "vielen Dank für Ihre Bewerbung. Für die Vorstellung bei unseren Kunden brauchen wir noch folgende Angaben:\n\n" +
+    "- " + offen.join("\n- ") + "\n\n" +
+    (p.thema1 ? "- " + p.thema1 + "\n" : "") + (p.thema2 ? "- " + p.thema2 + "\n" : "") + "\n" +
+    "Eine kurze Antwort genügt, dann können wir Sie umgehend anbieten.\n\n" +
+    "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
+}
 /* ---------- Start ---------- */
-(function start() {
-  const p = sessionStorage.getItem("zk_pass");
-  if (!p) { zeichne(); return; }
-  anmelden(p, sessionStorage.getItem("zk_wer")).then(zeichne).catch(() => { sessionStorage.clear(); zeichne(); });
-})();
+function tor(ml) {
+  q("#inhalt").innerHTML = `<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>
+    <p>Zugang nur für freigegebene Mitarbeiter. Die Daten liegen verschlüsselt; ohne Passwort ist nichts lesbar.</p>
+    <label>Konto</label><input id="ben" value="tobias" autocomplete="username">
+    <label>Passwort</label><input id="pw" type="password" autocomplete="current-password">
+    <div class="meld" id="fehler">${esc(ml || "")}</div>
+    <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div></div>`;
+  q("#los").onclick = () => start(q("#pw").value);
+  q("#pw").addEventListener("keydown", e => { if (e.key === "Enter") start(q("#pw").value); });
+  q("#pw").focus();
+}
+async function start(passwort) {
+  try {
+    await anmelden(passwort);
+    sessionStorage.setItem("zk_pass", passwort);
+    zeichne();
+  } catch (e) {
+    q("#inhalt").innerHTML = `<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>
+      <label>Konto</label><input id="ben" value="tobias">
+      <label>Passwort</label><input id="pw" type="password">
+      <div class="meld">${esc(e.message)}</div>
+      <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div></div>`;
+    q("#los").onclick = () => start(q("#pw").value);
+    q("#pw").addEventListener("keydown", ev => { if (ev.key === "Enter") start(q("#pw").value); });
+  }
+}
+const gemerkt = sessionStorage.getItem("zk_pass");
+if (gemerkt) start(gemerkt); else tor();
 if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {})); }
 </script>
 </body>

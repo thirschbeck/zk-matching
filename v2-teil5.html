@@ -1,0 +1,96 @@
+/* ---------- Zulauf ohne Daten ---------- */
+function ansichtZulauf() {
+  const zs = (daten.zulauf || []).filter(passtSuche);
+  let h = `<h2>Zulauf ohne Daten · ${zs.length}</h2><div class="hinweis">Bewerbungen, bei denen Angaben fehlen – hier eintragen, dann rutscht der Bewerber ins Matching.</div>`;
+  zs.forEach(z => {
+    const id = kZulauf(z), r = st("zulauf", id), name = R(z, "Bewerber");
+    h += `<div class="karte">
+      <div class="titel">${esc(name)}</div>
+      <div class="zeile">${esc(R(z, "Eingang"))} · ${esc(R(z, "beworben auf"))} · ${esc(R(z, "Kunde"))} · ${esc(R(z, "Niederlassung"))} · ${esc(R(z, "Wohnort"))}</div>
+      <div class="zeile"><b>Was fehlt:</b> ${esc(R(z, "Was fehlt"))}</div>
+      ${tagsAus(z, name)}
+      ${fehlendePunkte(name, z).length ? `<div class="zeile"><b>Fürs Matching fehlt:</b> ${esc(fehlendePunkte(name, z).join(", "))}</div>` : ""}
+      <div class="knoepfe">
+        <button class="k" data-p="${esc(name)}">Angaben ergänzen (Profil)</button>
+        <button class="k hell" data-rs="${esc(name)}">Rücksprache</button>
+        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(id)}|${esc(name)}|erledigt">${r.erledigt ? "✓ erledigt" : "erledigt"}</button>
+        <button class="k hell" data-e="zulauf|${esc(id)}">Bearbeiten</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- unter 65 % ---------- */
+function ansichtNachkontrolle() {
+  const zs = (daten.nachkontrolle || []).filter(passtSuche);
+  let h = `<h2>Unter 65 % Passung · ${zs.length}</h2><div class="hinweis">Nachkontrolle: prüfen, ob eine andere Stelle, ein anderer Kunde oder eine Rücksprache den Fall dreht.</div>`;
+  zs.forEach(z => {
+    const id = kNachk(z), name = R(z, "Bewerber");
+    h += `<div class="karte">
+      <div class="titel">${esc(name)} <span class="tag rot">${esc(R(z, "Passung"))}</span></div>
+      <div class="zeile">${esc(R(z, "Stelle / Anlass"))} · ${esc(R(z, "Arbeitgeber"))} · ${esc(R(z, "Region"))} · Quelle ${esc(R(z, "Quelle"))}</div>
+      <div class="zeile"><b>Grund:</b> ${esc(R(z, "Grund"))}</div>
+      ${tagsAus(z, name)}
+      <div class="knoepfe">
+        <button class="k" data-mat="${esc(name)}">Andere Stellen zeigen</button>
+        <button class="k hell" data-p="${esc(name)}">Profil & Kriterien</button>
+        <button class="k hell" data-rs="${esc(name)}">Rücksprache</button>
+        <button class="k hell" data-e="nachkontrolle|${esc(id)}">Notiz</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Nachfassen ---------- */
+function ansichtNachfass() {
+  const zs = (daten.nachfass || []).filter(passtSuche);
+  let h = `<h2>Nachfassen · ${zs.length}</h2><div class="hinweis">Wiedervorlage: fehlende Angaben nachfassen und Ergebnis festhalten.</div>`;
+  zs.forEach(z => {
+    const id = kNachf(z), r = st("nachfass", id), name = R(z, "Bewerber");
+    h += `<div class="karte">
+      <div class="titel">${esc(name)}</div>
+      <div class="zeile">${esc(R(z, "beworben auf"))} · ${esc(R(z, "Niederlassung"))} · ${esc(R(z, "Wohnort"))} · ${esc(R(z, "Berufsrichtung"))}</div>
+      <div class="zeile"><b>Fehlt noch:</b> ${esc(R(z, "Fehlt noch"))} · Recruiter ${esc(R(z, "Recruiter"))}</div>
+      ${tagsAus(z, name)}
+      <div class="knoepfe">
+        <button class="k" data-rs="${esc(name)}">Rücksprache</button>
+        <button class="k hell" data-p="${esc(name)}">Angaben ergänzen</button>
+        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(id)}|${esc(name)}|erledigt">${r.erledigt ? "✓ nachgefasst" : "nachgefasst"}</button>
+        <button class="k hell" data-e="nachfass|${esc(id)}">Bearbeiten</button>
+      </div></div>`;
+  });
+  return h;
+}
+/* ---------- Regel & Ansprechtext ---------- */
+function ansichtRegel() {
+  let h = `<h2>Regel & Ansprechtext</h2><h2 style="margin-top:12px">Regelwerk</h2><div class="karte">`;
+  (daten.regel || []).forEach(z => { h += `<div class="zeile">${esc(Object.values(z).join(" – "))}</div>`; });
+  h += `</div><h2>Ansprechtexte der Niederlassungen</h2><div class="karte">`;
+  (daten.ansprechtext || []).forEach(z => {
+    const k = Object.values(z);
+    h += `<details><summary>${esc(k[0] || "Text")}</summary><pre>${esc(k.slice(1).filter(Boolean).join("\n\n"))}</pre>
+      <button class="k hell" data-kop="${esc(k.slice(1).filter(Boolean).join("\n\n"))}">Kopieren</button></details>`;
+  });
+  h += `</div>`;
+  return h;
+}
+/* ---------- Auswertung ---------- */
+function ansichtAuswertung() {
+  const a = daten.arbeitsliste || [], b = daten.bestand || [], l = daten.leads || [];
+  const ohneV = a.filter(z => !st("arbeit", kArt(z)).verantwortlicher).length;
+  const voll = a.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0).length;
+  const blau = a.filter(istBlue).length;
+  let h = `<h2>Auswertung</h2><div class="kpi">
+    <div><div class="n">${a.length}</div><div class="l">Bewerber in der Arbeitsliste</div></div>
+    <div><div class="n">${ohneV}</div><div class="l">ohne Verantwortlichen</div></div>
+    <div><div class="n">${voll}</div><div class="l">Profil vollständig</div></div>
+    <div><div class="n">${blau}/${a.length - blau}</div><div class="l">Blue / White</div></div>
+    <div><div class="n">${b.length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
+    <div><div class="n">${l.length}</div><div class="l">Neukunden-Leads</div></div>
+  </div>
+  <div class="karte"><b>Wo es klemmt</b>
+  <div class="zeile">Ohne Verantwortlichen: ${ohneV}</div>
+  <div class="zeile">Ohne vollständiges Profil: ${a.length - voll}</div>
+  <div class="zeile">Ohne Lebenslauf: ${Object.keys(status.profil).filter(k => !status.profil[k].cv).length}</div>
+  <div class="zeile">Profile angefordert: ${Object.keys(status.profil).filter(k => status.profil[k].profil_angefordert).length}</div>
+  <div class="zeile">Profile geschrieben: ${Object.keys(status.profil).filter(k => status.profil[k].profil).length}</div></div>`;
+  return h;
+}

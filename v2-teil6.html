@@ -1,0 +1,78 @@
+/* ---------- Verbinden ---------- */
+let blatteName = null;
+function oeffne(html, nach) {
+  const alt = q(".tuch"); if (alt) alt.remove();
+  if (html) { document.body.insertAdjacentHTML("beforeend", html); verdrahten(); verdrahtenListe(); if (nach) nach(); }
+}
+function verdrahtenListe() {
+  qa("[data-f]").forEach(b => b.onclick = () => { filter = b.dataset.f === "alle" ? null : b.dataset.f; liste(); });
+  qa("[data-g]").forEach(b => b.onclick = () => {
+    const [id, name, feld] = b.dataset.g.split("|");
+    const art = tab === "matching" ? "bestand" : tab;
+    const r = st(art, id);
+    if (r[feld] === "ja") delete r[feld]; else r[feld] = "ja";
+    r._t = Date.now();
+    statusSpeichern(); liste();
+  });
+  qa("[data-e]").forEach(b => b.onclick = () => blattBearbeiten(b.dataset.e.split("|")[0], b.dataset.e.split("|")[1]));
+  qa("[data-p]").forEach(b => b.onclick = () => blattProfil(b.dataset.p));
+  qa("[data-mat]").forEach(b => b.onclick = () => { filter = null; suche = b.dataset.mat; tab = "matching"; zeichne(); });
+  qa("[data-rs]").forEach(b => b.onclick = () => blattRuecksprache(b.dataset.rs));
+  qa("[data-vor]").forEach(b => b.onclick = () => { const z = (daten.bestand || []).find(x => kBest(x) === b.dataset.vor); if (z) blattText("Kundenvorlage · " + R(z, "Bewerber"), entwurfVorschlag(z)); });
+  qa("[data-link]").forEach(b => b.onclick = () => { const [kunde, stelle, ort] = b.dataset.link.split("|"); blattText("Stelle & Link", stelleUndLink(kunde, stelle, ort)); });
+  qa("[data-url]").forEach(b => b.onclick = () => window.open(b.dataset.url, "_blank"));
+  qa("[data-nk]").forEach(b => b.onclick = () => { const [id, feld] = b.dataset.nk.split("|"); const r = nk(id); if (r[feld]) delete r[feld]; else r[feld] = "ja"; r._t = Date.now(); neukundenSpeichern(); liste(); });
+  qa("[data-nkvor]").forEach(b => b.onclick = () => { const z = (daten.leads || []).find(x => kLead(x) === b.dataset.nkvor); if (z) blattText("Anschreiben Neukunde · " + R(z, "Unternehmen (Neukunde)"), entwurfNeukunde(z)); });
+  qa("[data-nke]").forEach(b => b.onclick = () => blattBearbeitenNeukunde(b.dataset.nke));
+  qa("[data-kop]").forEach(b => b.onclick = () => { kopiere(b.dataset.kop.replace(/⏎/g, "\n")); });
+}
+function blattText(titel, text) {
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>${esc(titel)}</h3><pre id="txtbereich">${esc(text)}</pre>
+    <div class="knoepfe"><button class="k" data-kop2="1">Text kopieren</button><button class="k hell" data-h="zu">Schließen</button></div>
+    <div class="hinweis">Raus geht erst nach Freigabe durch Thomas – hier nur Text zum Einfügen in Outlook.</div></div></div>`, () => {
+    q("[data-kop2]").onclick = () => kopiere(q("#txtbereich").textContent);
+  });
+}
+function blattBearbeiten(art, id) {
+  const felder = (FELDER[art] || []).filter(f => !/geprüft|Match |Passung|Titelbezug|Einschätzung|km|im System|^Vorhandene|^Neukunden-Leads$|^Status$|^Eingang$|^Quelle$|^Grund$|^Anlass/.test(f));
+  const r = st(art, id);
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Notizen bearbeiten</h3>
+    ${felder.map(f => `<label>${esc(f)}</label><input data-feld="${esc(f)}" value="${esc(r[f] || "")}">`).join("")}
+    <label>Freie Notiz</label><textarea data-feld="notiz">${esc(r.notiz || "")}</textarea>
+    <div class="knoepfe"><button class="k" data-sich="1">Speichern</button><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
+    q("[data-sich]").onclick = () => {
+      const rr = st(art, id);
+      qa("[data-feld]").forEach(f => { if (f.value === "") delete rr[f.dataset.feld]; else rr[f.dataset.feld] = f.value; });
+      rr._t = Date.now(); statusSpeichern(); oeffne(null); liste();
+    };
+  });
+}
+function blattBearbeitenNeukunde(id) {
+  const felder = ["Kontaktweg", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"];
+  const r = nk(id);
+  oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
+    <h3>Neukunde bearbeiten</h3>
+    ${felder.map(f => `<label>${esc(f)}</label><input data-nf="${esc(f)}" value="${esc(r[f] || "")}">`).join("")}
+    <div class="knoepfe"><button class="k" data-nsich="1">Speichern</button><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
+    q("[data-nsich]").onclick = () => {
+      const rr = nk(id);
+      qa("[data-nf]").forEach(f => { if (f.value === "") delete rr[f.dataset.nf]; else rr[f.dataset.nf] = f.value; });
+      rr._t = Date.now(); neukundenSpeichern(); oeffne(null); liste();
+    };
+  });
+}
+/* ---------- Stelle & Link ---------- */
+function stelleUndLink(kunde, stelle, ort) {
+  const lead = (daten.leads || []).find(z => String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) && String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) === String(kunde || "").toLowerCase().slice(0, 12));
+  const zeilen = [];
+  zeilen.push("Stelle: " + (stelle || "—"));
+  zeilen.push("Kunde: " + (kunde || "—"));
+  zeilen.push("Einsatzort: " + (ort || "—"));
+  if (lead && R(lead, "Link")) zeilen.push("Stellen-Link (Karriereseite des Kunden): " + R(lead, "Link"));
+  else zeilen.push("Karriereseite/Suche: https://www.google.com/search?q=" + encodeURIComponent("Karriere " + (kunde || "") + " " + (ort || "")));
+  zeilen.push("Im Cockpit: " + (stelle || ""));
+  zeilen.push("Umkreis: gilt bis " + KM_MAX + " km (Wohnort × Einsatzort).");
+  return zeilen.join("\n");
+}

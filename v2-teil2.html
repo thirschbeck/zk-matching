@@ -1,0 +1,74 @@
+/* ---------- Zeilen, Kennungen, Berufsbild ---------- */
+function R(z, feld) { return z && z[feld] != null ? z[feld] : ""; }
+function kennung(z, felder) {
+  const s = felder.map(f => String(R(z, f)), ).join("|").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 46);
+  let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return s + "~" + (h >>> 0).toString(36);
+}
+const kArt = z => kennung(z, ["Bewerber", "Niederlassung"]);
+const kBest = z => kennung(z, ["Bewerber", "unsere offene Stelle", "Kunde (Bestand)"]);
+const kEingang = z => kennung(z, ["Bewerber", "Stelle", "Eingang"]);
+const kZulauf = z => kennung(z, ["Bewerber", "beworben auf", "Eingang"]);
+const kNachk = z => kennung(z, ["Bewerber", "Stelle / Anlass", "Arbeitgeber"]);
+const kNachf = z => kennung(z, ["Bewerber", "beworben auf"]);
+const kLead = z => kennung(z, ["Bewerber", "Unternehmen (Neukunde)", "Anlass / Stelle"]);
+const kPerson = name => String(name || "").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 60);
+
+const VERTEIDIGUNG = /hensoldt|airbus defence|mbda|rheinmetall|diehl|esg |iabg|rohde|thales|leonardo|knds|ffg|atlas elektronik|krauss|heckler|defence|defense|bundeswehr|bwb|dstl|isr|optronik|prec|sens/;
+const verteidigung = z => VERTEIDIGUNG.test(String(R(z, "Kunde (Bestand)") || R(z, "Kunde") || R(z, "Unternehmen (Neukunde)") || R(z, "Arbeitgeber") || R(z, "Stelle / Anlass") || "").toLowerCase());
+const istBlue = z => /blue/i.test(String(R(z, "Blue/White")));
+
+/* ---------- Bewerberprofil (Kriterien) ---------- */
+function pr(name) { const k = kPerson(name); status.profil[k] = Object.assign({ cv: null }, status.profil[k] || {}); return status.profil[k]; }
+function prSet(name, feld, wert) {
+  const p = pr(name);
+  if (wert === "" || wert == null) delete p[feld]; else p[feld] = wert;
+  p._t = Date.now();
+  statusSpeichern();
+}
+function fehlendePunkte(name, z) {
+  const p = pr(name), aus = [];
+  if (!p.ausbildung) aus.push("Ausbildung fehlt");
+  else if (!p.ausbildung_geprueft) aus.push("Ausbildung noch nicht geprüft");
+  if (!p.taetigkeit) aus.push("Tätigkeit fehlt");
+  else if (!p.taetigkeit_klar) aus.push("Tätigkeit nicht klar");
+  if (!p.studium && !p.ausbildung) aus.push("weder Ausbildung noch Studium");
+  if (!p.sap && !p.google && !p.m365) aus.push("keine IT-Kenntnisse (SAP/M365/Google)");
+  if (!p.spez) aus.push("keine Spezialisierung");
+  if (verteidigung(z) && !p.suep) aus.push("ZÜP/Ü2/SÜG fehlt (Verteidigung)");
+  if (!p.cv) aus.push("kein Lebenslauf");
+  if (!p.profil) aus.push("Profil noch nicht geschrieben");
+  return aus;
+}
+function profilStand(name, z) {
+  const offen = fehlendePunkte(name, z).length;
+  return offen === 0 ? "vollständig" : offen + " Punkt(e) offen";
+}
+
+/* ---------- Reiter ---------- */
+const REITER = [
+  ["arbeit", "Arbeitsliste"], ["eingang", "Eingang"], ["matching", "Matching"],
+  ["neukunden", "Neukunden"], ["zulauf", "Zulauf ohne Daten"], ["nachkontrolle", "unter 65 %"],
+  ["nachfass", "Nachfassen"], ["regel", "Regel & Text"], ["auswertung", "Auswertung"]
+];
+const FELDER = {
+  arbeit: ["Region", "Blue/White", "Bewerber", "Wohnort", "Zielrolle / Beruf", "Niederlassung", "im System seit", "Bewerbung geprüft", "Vorhandene Kunden", "Neukunden-Leads", "Nächster Schritt", "Verantwortlicher", "Ergebnis"],
+  bestand: ["Region", "Blue/White", "Bewerber", "Wohnort", "km", "unsere offene Stelle", "Kunde (Bestand)", "Ort Einsatz", "Niederlassung", "Titelbezug", "Einschätzung", "Kunde angesprochen", "Ergebnis"],
+  eingang: ["Eingang", "Bewerber", "Stelle", "Kunde", "Niederlassung", "Status", "Recruiter", "Match Bestand", "Match neue Stellen"],
+  zulauf: ["Bewerber", "beworben auf", "Kunde", "Niederlassung", "Eingang", "Status", "Recruiter", "Wohnort", "Berufsrichtung", "Was fehlt", "Erledigt"],
+  nachkontrolle: ["Region", "Blue/White", "Bewerber", "Stelle / Anlass", "Arbeitgeber", "Passung", "Quelle", "Grund"],
+  nachfass: ["Niederlassung", "Bewerber", "beworben auf", "Wohnort", "Berufsrichtung", "Fehlt noch", "Recruiter", "nachgefasst am", "Erledigt"],
+  leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
+};
+const KM_MAX = 60;
+
+function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
+function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
+function passtSuche(z) {
+  if (!suche) return true;
+  const s = suche.toLowerCase();
+  return Object.keys(z).some(k => String(z[k]).toLowerCase().includes(s));
+}
+function kopiere(text) {
+  navigator.clipboard.writeText(text).then(() => setFuss("Kopiert – kann eingefügt werden."), () => setFuss("Kopieren ging nicht, bitte Text markieren."));
+}

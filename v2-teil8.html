@@ -1,0 +1,98 @@
+/* ---------- Profile und Entwürfe ---------- */
+function kriterienBlock(name, z) {
+  const p = pr(name), zl = [];
+  const zeig = (t, w) => { if (w) zl.push(t + ": " + w); };
+  zeig("Ausbildung", (p.ausbildung || "") + (p.ausbildung_geprueft === "ja" ? " (geprüft)" : p.ausbildung ? " (Prüfung läuft)" : ""));
+  zeig("Studium", p.studium === "ja" ? "abgeschlossen" + (p.studium_fach ? " – " + p.studium_fach : "") : "");
+  zeig("Tätigkeit", p.taetigkeit);
+  zeig("IT-Kenntnisse", [p.sap ? "SAP" : "", p.google ? "Google Workspace" : "", p.m365 ? "M365" : ""].filter(Boolean).join(", "));
+  zeig("Spezialisierungen", p.spez);
+  zeig("Zertifikate / Weiterbildungen", p.zert);
+  zeig("Verfügbar ab", p.verfuegbar);
+  const suep = p.suep ? (p.suep + " – Stand: " + (p.suep_status || "offen")) : (verteidigung(z) ? "ZÜP/Ü2/SÜG erforderlich, Stand klären" : "");
+  zeig("Sicherheitsüberprüfung", suep);
+  zeig("Wohnort", R(z, "Wohnort"));
+  zeig("Zielrolle", R(z, "Zielrolle / Beruf"));
+  zeig("Kragenfarbe", istBlue(z) ? "Blue Collar (gewerblich/technisch)" : "White Collar (kaufmännisch/ingenieurmäßig)");
+  return zl.join("\n");
+}
+function profilAnKunde(name) {
+  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const p = pr(name), offen = fehlendePunkte(name, z);
+  const kopf = [
+    "KANDIDATENPROFIL (intern, Stand " + new Date().toLocaleDateString("de-DE") + ")",
+    "",
+    "Bewerber: " + name,
+    "Position: " + (R(z, "Zielrolle / Beruf") || R(z, "unsere offene Stelle") || "—"),
+    "Einsatzort/Wohnort: " + (R(z, "Ort Einsatz") || R(z, "Wohnort") || "—"),
+    ""
+  ];
+  const mitte = [p.profil ? p.profil : "(Profil noch nicht geschrieben – im Profil-Blatt „Profil schreiben lassen“ antippen.)", "", "Eckdaten:", kriterienBlock(name, z)];
+  const ende = ["", "Offene Punkte: " + (offen.length ? offen.join(", ") : "keine")];
+  return kopf.concat(mitte).concat(ende).join("\n");
+}
+function entwurfVorschlag(z) {
+  const name = R(z, "Bewerber"), p = pr(name);
+  return "Betreff: " + (R(z, "unsere offene Stelle") || "Ihre offene Stelle") + " – Kandidatenvorschlag " + name + "\n\n" +
+    "Guten Tag,\n\n" +
+    "für Ihre Stelle „" + R(z, "unsere offene Stelle") + "\u201c in " + R(z, "Ort Einsatz") + " schlage ich Ihnen " + name + " vor.\n\n" +
+    kriterienBlock(name, z) + "\n\n" +
+    (p.profil ? "Zum Bewerber:\n" + p.profil + "\n\n" : "") +
+    "Der Bewerber ist verfügbar" + (p.verfuegbar ? " ab " + p.verfuegbar : "") + " und wohnt " + R(z, "Wohnort") + " (" + R(z, "km") + " km zum Einsatzort).\n\n" +
+    "Sagen Sie mir kurz Bescheid, ob wir den Lebenslauf und die Unterlagen zusenden sollen – dann liegt alles umgehend bei Ihnen.\n\n" +
+    "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
+}
+function entwurfNeukunde(z) {
+  const name = R(z, "Bewerber");
+  return "Betreff: " + (R(z, "Anlass / Stelle")) + " – passender Bewerber aus unserem Netz\n\n" +
+    "Guten Tag" + (R(z, "Ansprechpartner") ? " " + R(z, "Ansprechpartner") : "") + ",\n\n" +
+    "wir sind auf Ihre Ausschreibung „" + R(z, "Anlass / Stelle") + "\u201c aufmerksam geworden" + (R(z, "Link") ? " (" + R(z, "Link") + ")" : "") + ".\n\n" +
+    "Für diese Position haben wir " + name + " im Zugang, " + R(z, "Wohnort") + ", " + R(z, "Zielrolle / Beruf") + ":\n\n" +
+    kriterienBlock(name, z) + "\n\n" +
+    "Sollen wir Ihnen den Lebenslauf und ein Kurzprofil zusenden? Wir vermitteln Fach- und Führungskräfte in der Luftfahrt und im technischen Umfeld, Festanstellung und Überlassung.\n\n" +
+    "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
+}
+function entwurfRuecksprache(name) {
+  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const p = pr(name), offen = fehlendePunkte(name, z);
+  return "Betreff: Ihre Bewerbung – kurze Rückfragen\n\n" +
+    "Guten Tag " + (name.split(" ").slice(-1)[0] || name) + ",\n\n" +
+    "vielen Dank für Ihre Bewerbung. Für die Vorstellung bei unseren Kunden brauchen wir noch folgende Angaben:\n\n" +
+    "- " + offen.join("\n- ") + "\n\n" +
+    (p.thema1 ? "- " + p.thema1 + "\n" : "") + (p.thema2 ? "- " + p.thema2 + "\n" : "") + "\n" +
+    "Eine kurze Antwort genügt, dann können wir Sie umgehend anbieten.\n\n" +
+    "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
+}
+/* ---------- Start ---------- */
+function tor(ml) {
+  q("#inhalt").innerHTML = `<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>
+    <p>Zugang nur für freigegebene Mitarbeiter. Die Daten liegen verschlüsselt; ohne Passwort ist nichts lesbar.</p>
+    <label>Konto</label><input id="ben" value="tobias" autocomplete="username">
+    <label>Passwort</label><input id="pw" type="password" autocomplete="current-password">
+    <div class="meld" id="fehler">${esc(ml || "")}</div>
+    <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div></div>`;
+  q("#los").onclick = () => start(q("#pw").value);
+  q("#pw").addEventListener("keydown", e => { if (e.key === "Enter") start(q("#pw").value); });
+  q("#pw").focus();
+}
+async function start(passwort) {
+  try {
+    await anmelden(passwort);
+    sessionStorage.setItem("zk_pass", passwort);
+    zeichne();
+  } catch (e) {
+    q("#inhalt").innerHTML = `<div class="gate"><h1>ZK Professionals · Stellenmatching</h1>
+      <label>Konto</label><input id="ben" value="tobias">
+      <label>Passwort</label><input id="pw" type="password">
+      <div class="meld">${esc(e.message)}</div>
+      <div class="knoepfe"><button class="k" id="los" style="width:100%">Anmelden</button></div></div>`;
+    q("#los").onclick = () => start(q("#pw").value);
+    q("#pw").addEventListener("keydown", ev => { if (ev.key === "Enter") start(q("#pw").value); });
+  }
+}
+const gemerkt = sessionStorage.getItem("zk_pass");
+if (gemerkt) start(gemerkt); else tor();
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {})); }
+</script>
+</body>
+</html>

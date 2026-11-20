@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f2740">
+<title>ZK Professionals · Stellenmatching</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+:root{--blau:#0f2740;--blau2:#1b4a72;--akzent:#c8a24a;--hell:#f4f6f9;--linie:#dfe4ea;--ok:#1f7a48;--warn:#a8621b;--rot:#a32121;--grau:#6b7785}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--hell);color:#15212e}
+header{position:sticky;top:0;z-index:20;background:var(--blau);color:#fff;padding:10px 12px 8px}
+header h1{margin:0;font-size:16px;letter-spacing:.2px}
+header .stand{font-size:11.5px;opacity:.82;margin-top:2px}
+header .werkzeuge{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+header button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:6px 10px;font-size:12.5px}
+nav{position:sticky;top:78px;z-index:19;background:#fff;border-bottom:1px solid var(--linie);display:flex;overflow-x:auto;gap:2px;padding:0 6px}
+nav button{flex:0 0 auto;background:none;border:0;border-bottom:3px solid transparent;padding:9px 10px;font-size:12.5px;color:var(--grau);white-space:nowrap}
+nav button.aktiv{color:var(--blau);border-bottom-color:var(--akzent);font-weight:600}
+main{padding:12px 12px 90px;max-width:1100px;margin:0 auto}
+h2{font-size:14px;margin:2px 0 10px;text-transform:uppercase;letter-spacing:.6px;color:var(--blau2)}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-bottom:14px}
+.kpi div{background:#fff;border:1px solid var(--linie);border-radius:10px;padding:8px 10px}
+.kpi .n{font-size:20px;font-weight:700;color:var(--blau)}
+.kpi .l{font-size:11px;color:var(--grau);line-height:1.25}
+.karte{background:#fff;border:1px solid var(--linie);border-radius:11px;padding:10px 11px;margin-bottom:9px}
+.karte .titel{font-weight:700;font-size:14.5px;color:var(--blau)}
+.karte .zeile{font-size:12.5px;color:#33475c;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag{font-size:11px;border-radius:999px;padding:2px 8px;background:#eef2f6;color:#3b4d61;border:1px solid #e2e8ee}
+.tag.blue{background:#e8f1fb;border-color:#cfe1f5;color:#1c4d7d}
+.tag.white{background:#fdf4e3;border-color:#f2e2c4;color:#8a6116}
+.tag.ok{background:#e9f6ee;border-color:#cfe9d9;color:#1f7a48}
+.tag.warn{background:#fdf1e5;border-color:#f5ddc4;color:#a8621b}
+.tag.rot{background:#fbeaea;border-color:#f3cfcf;color:#a32121}
+.tag.grau{background:#eef0f3;color:#6b7785}
+.knoepfe{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+button.k{background:var(--blau);color:#fff;border:0;border-radius:8px;padding:7px 11px;font-size:12.5px}
+button.k.hell{background:#eef2f6;color:var(--blau);border:1px solid var(--linie)}
+button.k.gruen{background:var(--ok)}
+button.k.gold{background:var(--akzent);color:#2a2005}
+input,select,textarea{font:14px inherit;padding:8px;border:1px solid var(--linie);border-radius:8px;width:100%;background:#fff}
+textarea{min-height:70px}
+label{font-size:12px;color:var(--grau);display:block;margin:8px 0 3px}
+.feld{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:620px){.feld{grid-template-columns:1fr}}
+.tuch{position:fixed;inset:0;background:rgba(12,22,34,.5);display:flex;align-items:flex-end;justify-content:center;z-index:40}
+.blatt{background:#fff;border-radius:14px 14px 0 0;width:100%;max-width:720px;max-height:92vh;overflow:auto;padding:14px 14px 22px}
+.blatt h3{margin:0 0 8px;font-size:15px}
+.gate{max-width:340px;margin:14vh auto;background:#fff;border:1px solid var(--linie);border-radius:14px;padding:20px}
+.gate h1{font-size:17px;margin:0 0 4px;color:var(--blau)}
+.gate p{font-size:12.5px;color:var(--grau);margin:0 0 12px}
+.meld{font-size:12.5px;color:var(--rot);min-height:16px;margin-top:6px}
+.fuss{font-size:12px;color:var(--grau);min-height:16px;margin:8px 0}
+.such{display:flex;gap:6px;margin-bottom:10px}
+.such input{flex:1}
+.hinweis{font-size:11.5px;color:var(--grau);margin-top:5px}
+details{background:#fff;border:1px solid var(--linie);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+summary{font-size:13px;font-weight:600;color:var(--blau2)}
+pre{white-space:pre-wrap;font:13px/1.45 inherit;background:#fbfcfd;border:1px solid var(--linie);border-radius:8px;padding:10px;margin:8px 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>ZK Professionals · Stellenmatching</h1>
+  <div class="stand" id="stand">wird geladen …</div>
+  <div class="werkzeuge" id="werkzeuge"></div>
+</header>
+<nav id="reiter"></nav>
+<main id="inhalt"></main>
+<script>
+"use strict";
+/* ---------- Zugang ---------- */
+const BUCKET = "HuCDKH1zjs9QPg6yTPeVqH";
+const URL_DATEN = "https://kvdb.io/" + BUCKET + "/zk-app-daten";
+const URL_STATUS = "https://kvdb.io/" + BUCKET + "/zk-app-status";
+const URL_NEU = "https://kvdb.io/" + BUCKET + "/zk-app-neukunden";
+const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
+
+let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
+let tab = "arbeit", filter = null, suche = "";
+
+/* ---------- Krypto ---------- */
+const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function keyAus(passwort, saltB64, iter) {
+  const grund = await crypto.subtle.importKey("raw", new TextEncoder().encode(passwort), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: b64d(saltB64), iterations: iter || ITER, hash: "SHA-256" },
+    grund, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+async function entschluesseln(huelle, passwort) {
+  const k = await keyAus(passwort, huelle.salt, huelle.iter);
+  const klar = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64d(huelle.iv) }, k, b64d(huelle.ct));
+  return JSON.parse(new TextDecoder().decode(klar));
+}
+async function verschluesseln(objekt, k) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, new TextEncoder().encode(JSON.stringify(objekt)));
+  return { v: VERSION, kdf: KDF, iter: ITER, salt: SALT, iv: b64e(iv), ct: b64e(ct) };
+}
+
+/* ---------- Speicher ---------- */
+async function hole(url) {
+  const r = await fetch(url + "?z=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) return null;
+  const t = (await r.text()).trim();
+  if (!t) return null;
+  return JSON.parse(t);
+}
+async function lege(url, huelle) {
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(huelle) });
+  return r.ok;
+}
+async function anmelden(passwort) {
+  const h = await hole(URL_DATEN);
+  if (!h) throw new Error("Die Daten sind gerade nicht erreichbar.");
+  let inhalt;
+  try { inhalt = await entschluesseln(h, passwort); }
+  catch (e) { throw new Error("Passwort stimmt nicht."); }
+  schluessel = await keyAus(passwort, h.salt, h.iter);
+  SALT = h.salt;
+  daten = inhalt;
+  const s = await hole(URL_STATUS);
+  status = (s ? await entschluesseln(s, passwort).catch(() => null) : null) || { rows: {}, stelle: {}, profil: {}, stand: 0 };
+  status.rows = status.rows || {}; status.stelle = status.stelle || {}; status.profil = status.profil || {};
+  const n = await hole(URL_NEU);
+  neukunden = (n ? await entschluesseln(n, passwort).catch(() => null) : null) || { rows: {}, stand: 0 };
+  neukunden.rows = neukunden.rows || {};
+}
+async function statusSpeichern() {
+  status.stand = Date.now();
+  const ok = await lege(URL_STATUS, await verschluesseln(status, schluessel));
+  setFuss(ok ? "Gespeichert " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "Speichern fehlgeschlagen – bitte nochmal.");
+  return ok;
+}
+async function neukundenSpeichern() {
+  neukunden.stand = Date.now();
+  const ok = await lege(URL_NEU, await verschluesseln(neukunden, schluessel));
+  setFuss(ok ? "Neukunden-Blatt gespeichert." : "Speichern fehlgeschlagen – bitte nochmal.");
+  return ok;
+}
+/* Zeile im Statusspeicher (Art: arbeit | bestand | eingang | zulauf | nachkontrolle | nachfass | profil) */
+function st(art, id) { status.rows[art] = status.rows[art] || {}; status.rows[art][id] = status.rows[art][id] || {}; return status.rows[art][id]; }
+function stSet(art, id, feld, wert) { const r = st(art, id); if (wert === "" || wert == null) delete r[feld]; else r[feld] = wert; r._t = Date.now(); statusSpeichern(); }
+function nk(id) { neukunden.rows[id] = neukunden.rows[id] || {}; return neukunden.rows[id]; }
+/* ---------- Hilfen ---------- */
+const q = (s, r) => (r || document).querySelector(s);
+const qa = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
