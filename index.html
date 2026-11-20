@@ -647,6 +647,19 @@ function blattProfil(name) {
       ${/^a/i.test(String(R(z, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(z))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("") : ""}
     <div class="knoepfe"><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => bindProfil(name));
 }
+function profilLesen(name) {
+  const p = pr(name);
+  [["pr_ausbildung", "ausbildung"], ["pr_ausbildung_geprueft", "ausbildung_geprueft"], ["pr_taetigkeit", "taetigkeit"],
+   ["pr_taetigkeit_klar", "taetigkeit_klar"], ["pr_studium", "studium"], ["pr_studium_fach", "studium_fach"],
+   ["pr_zert", "zert"], ["pr_verfuegbar", "verfuegbar"], ["pr_spez", "spez"], ["pr_suep", "suep"],
+   ["pr_suep_status", "suep_status"], ["pr_thema1", "thema1"], ["pr_thema2", "thema2"], ["pr_rueck", "rueck"],
+   ["pr_rueck_am", "rueck_am"], ["pr_profil", "profil"]].forEach(([id, feld]) => {
+    const el = q("#" + id); if (!el) return;
+    if (el.value === "") delete p[feld]; else p[feld] = el.value;
+  });
+  p._t = Date.now();
+  return p;
+}
 function bindProfil(name) {
   qa("[data-it]").forEach(b => b.onclick = () => { const p = pr(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(name); });
   q("#pr_cv").onchange = e => {
@@ -654,26 +667,17 @@ function bindProfil(name) {
     if (f.size > 1600000) { setFuss("Die Datei ist größer als 1,5 MB – bitte verkleinern."); return; }
     const fr = new FileReader();
     fr.onload = () => {
-      const p = pr(name);
+      const p = profilLesen(name);
       p.cv = { name: f.name, typ: f.type, groesse: f.size, stand: new Date().toISOString().slice(0, 10), b64: String(fr.result).split(",")[1] };
       p.profil_angefordert = new Date().toISOString();
       p._t = Date.now(); statusSpeichern();
-      setFuss("Lebenslauf hinterlegt – Profil wird geschrieben.");
+      setFuss("Lebenslauf hinterlegt – das Profil wird jetzt geschrieben.");
       oeffne(null); blattProfil(name);
     };
     fr.readAsDataURL(f);
   };
   q("[data-prs]").onclick = () => {
-    const p = pr(name);
-    [["pr_ausbildung", "ausbildung"], ["pr_ausbildung_geprueft", "ausbildung_geprueft"], ["pr_taetigkeit", "taetigkeit"],
-     ["pr_taetigkeit_klar", "taetigkeit_klar"], ["pr_studium", "studium"], ["pr_studium_fach", "studium_fach"],
-     ["pr_zert", "zert"], ["pr_verfuegbar", "verfuegbar"], ["pr_spez", "spez"], ["pr_suep", "suep"],
-     ["pr_suep_status", "suep_status"], ["pr_thema1", "thema1"], ["pr_thema2", "thema2"], ["pr_rueck", "rueck"],
-     ["pr_rueck_am", "rueck_am"], ["pr_profil", "profil"]].forEach(([id, feld]) => {
-      const el = q("#" + id); if (!el) return;
-      if (el.value === "") delete p[feld]; else p[feld] = el.value;
-    });
-    p._t = Date.now(); statusSpeichern(); setFuss("Profil gespeichert."); liste();
+    profilLesen(name); statusSpeichern(); setFuss("Profil gespeichert."); liste();
   };
   q("[data-prf]").onclick = () => {
     const p = pr(name);
