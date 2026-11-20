@@ -84,6 +84,7 @@ const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
 let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
 let tab = "arbeit", suche = "";
+let leseFehler = false;   /* Stand unlesbar -> nicht schreiben, sonst ueberschreibt ein leerer Bestand die Daten */
 /* Auswahl je Reiter getrennt halten - sonst wirkt ein Filter im naechsten Reiter weiter */
 const auswahlProReiter = {};
 Object.defineProperty(window, "filter", {
@@ -175,10 +176,14 @@ async function anmelden(passwort) {
   SALT = h.salt;
   daten = inhalt;
   const s = await hole(URL_STATUS);
-  status = (s ? await entschluesseln(s, passwort).catch(() => null) : null) || { rows: {}, stelle: {}, profil: {}, stand: 0 };
+  const sGelesen = s ? await entschluesseln(s, passwort).catch(() => null) : null;
+  if (s && !sGelesen) leseFehler = true;
+  status = sGelesen || { rows: {}, stelle: {}, profil: {}, stand: 0 };
   status.rows = status.rows || {}; status.stelle = status.stelle || {}; status.profil = status.profil || {};
   const n = await hole(URL_NEU);
-  neukunden = (n ? await entschluesseln(n, passwort).catch(() => null) : null) || { rows: {}, stand: 0 };
+  const nGelesen = n ? await entschluesseln(n, passwort).catch(() => null) : null;
+  if (n && !nGelesen) leseFehler = true;
+  neukunden = nGelesen || { rows: {}, stand: 0 };
   neukunden.rows = neukunden.rows || {};
 }
 /* Mit dem abgeleiteten Schluessel oeffnen (ohne Passwort) */
@@ -190,6 +195,7 @@ async function aufmachenMit(h, k) {
   } catch (e) { return null; }
 }
 async function statusSpeichern() {
+  if (leseFehler) { setFuss("Der gespeicherte Stand ließ sich nicht lesen – bitte die Seite neu laden. Es wurde nichts gespeichert."); return false; }
   status.stand = Date.now();
   /* Leere Profilzeilen gar nicht erst mitschleppen */
   Object.keys(status.profil || {}).forEach(k => {

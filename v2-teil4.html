@@ -47,15 +47,16 @@ function ansichtEingang() {
 /* ---------- Matching (Bestandskunden, 60 km) ---------- */
 function ansichtMatching() {
   let zs = (daten.bestand || []).filter(passtSuche);
-  zs = zs.filter(z => { const km = parseFloat(String(R(z, "km")).replace(",", ".")); return !isFinite(km) || km <= KM_MAX; });
   if (filter === "Blue Collar") zs = zs.filter(istBlue);
   if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
   if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
   zs = zs.filter(z => passtBearbeiter(R(z, "Bewerber"), z));
+  const unklar = zs.filter(kmUnklar);
+  zs = zs.filter(imUmkreis).sort(nachKm);
   let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
   h += kopfBearbeiter(daten.bestand || [], "Bearbeiter");
   h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
-    <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung sortiert. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
+    <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung aufsteigend sortiert (genau 60 km zählt dazu). Stellen ohne gültige Entfernung stehen unten getrennt. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
   zs.forEach(z => {
     const km = parseFloat(String(R(z, "km")).replace(",", ".")), id = kBest(z), name = R(z, "Bewerber");
     const offen = fehlendePunkte(name, z), p = pr(name);
@@ -73,6 +74,10 @@ function ansichtMatching() {
         <button class="k hell" data-e="bestand|${esc(id)}">Notiz</button>
       </div></div>`;
   });
+  if (unklar.length) h += `<h3 style="margin-top:16px">Entfernung unklar – bitte prüfen (${unklar.length})</h3>` +
+    unklar.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Bewerber"))} <span class="tag rot">km ?</span></div>
+      <div class="zeile">${esc(R(z, "unsere offene Stelle"))} · ${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))}</div>
+      <div class="zeile">Ohne gültige Kilometerangabe zählt diese Stelle nicht als Umkreistreffer.</div></div>`).join("");
   return h;
 }
 /* ---------- Neukunden: eigenes Blatt ---------- */

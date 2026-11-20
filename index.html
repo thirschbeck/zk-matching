@@ -84,6 +84,7 @@ const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
 let schluessel = null, SALT = null, daten = null, status = null, neukunden = null;
 let tab = "arbeit", suche = "";
+let leseFehler = false;   /* Stand unlesbar -> nicht schreiben, sonst ueberschreibt ein leerer Bestand die Daten */
 /* Auswahl je Reiter getrennt halten - sonst wirkt ein Filter im naechsten Reiter weiter */
 const auswahlProReiter = {};
 Object.defineProperty(window, "filter", {
@@ -175,10 +176,14 @@ async function anmelden(passwort) {
   SALT = h.salt;
   daten = inhalt;
   const s = await hole(URL_STATUS);
-  status = (s ? await entschluesseln(s, passwort).catch(() => null) : null) || { rows: {}, stelle: {}, profil: {}, stand: 0 };
+  const sGelesen = s ? await entschluesseln(s, passwort).catch(() => null) : null;
+  if (s && !sGelesen) leseFehler = true;
+  status = sGelesen || { rows: {}, stelle: {}, profil: {}, stand: 0 };
   status.rows = status.rows || {}; status.stelle = status.stelle || {}; status.profil = status.profil || {};
   const n = await hole(URL_NEU);
-  neukunden = (n ? await entschluesseln(n, passwort).catch(() => null) : null) || { rows: {}, stand: 0 };
+  const nGelesen = n ? await entschluesseln(n, passwort).catch(() => null) : null;
+  if (n && !nGelesen) leseFehler = true;
+  neukunden = nGelesen || { rows: {}, stand: 0 };
   neukunden.rows = neukunden.rows || {};
 }
 /* Mit dem abgeleiteten Schluessel oeffnen (ohne Passwort) */
@@ -190,6 +195,7 @@ async function aufmachenMit(h, k) {
   } catch (e) { return null; }
 }
 async function statusSpeichern() {
+  if (leseFehler) { setFuss("Der gespeicherte Stand ließ sich nicht lesen – bitte die Seite neu laden. Es wurde nichts gespeichert."); return false; }
   status.stand = Date.now();
   /* Leere Profilzeilen gar nicht erst mitschleppen */
   Object.keys(status.profil || {}).forEach(k => {
@@ -303,7 +309,12 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026h";
+/* Eine Regel fuer alle Ansichten: genau 60 km zaehlt dazu, unbekannt oder negativ nicht. */
+function kmZahl(z) { const k = parseFloat(String(R(z, "km")).replace(",", ".")); return isFinite(k) && k >= 0 ? k : NaN; }
+function imUmkreis(z) { const k = kmZahl(z); return isFinite(k) && k <= KM_MAX; }
+function kmUnklar(z) { return !isFinite(kmZahl(z)); }
+function nachKm(a, b) { const ka = kmZahl(a), kb = kmZahl(b); return (isFinite(ka) ? ka : Infinity) - (isFinite(kb) ? kb : Infinity); }
+const FASSUNG = "20.11.2026i";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
@@ -473,15 +484,16 @@ function ansichtEingang() {
 /* ---------- Matching (Bestandskunden, 60 km) ---------- */
 function ansichtMatching() {
   let zs = (daten.bestand || []).filter(passtSuche);
-  zs = zs.filter(z => { const km = parseFloat(String(R(z, "km")).replace(",", ".")); return !isFinite(km) || km <= KM_MAX; });
   if (filter === "Blue Collar") zs = zs.filter(istBlue);
   if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
   if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
   zs = zs.filter(z => passtBearbeiter(R(z, "Bewerber"), z));
+  const unklar = zs.filter(kmUnklar);
+  zs = zs.filter(imUmkreis).sort(nachKm);
   let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
   h += kopfBearbeiter(daten.bestand || [], "Bearbeiter");
   h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
-    <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung sortiert. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
+    <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung aufsteigend sortiert (genau 60 km zählt dazu). Stellen ohne gültige Entfernung stehen unten getrennt. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
   zs.forEach(z => {
     const km = parseFloat(String(R(z, "km")).replace(",", ".")), id = kBest(z), name = R(z, "Bewerber");
     const offen = fehlendePunkte(name, z), p = pr(name);
@@ -499,6 +511,10 @@ function ansichtMatching() {
         <button class="k hell" data-e="bestand|${esc(id)}">Notiz</button>
       </div></div>`;
   });
+  if (unklar.length) h += `<h3 style="margin-top:16px">Entfernung unklar – bitte prüfen (${unklar.length})</h3>` +
+    unklar.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Bewerber"))} <span class="tag rot">km ?</span></div>
+      <div class="zeile">${esc(R(z, "unsere offene Stelle"))} · ${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))}</div>
+      <div class="zeile">Ohne gültige Kilometerangabe zählt diese Stelle nicht als Umkreistreffer.</div></div>`).join("");
   return h;
 }
 /* ---------- Neukunden: eigenes Blatt ---------- */
@@ -615,13 +631,14 @@ function ansichtAuswertung() {
     <div><div class="n">${ohneV}</div><div class="l">ohne Verantwortlichen</div></div>
     <div><div class="n">${voll}</div><div class="l">Profil vollständig</div></div>
     <div><div class="n">${blau}/${a.length - blau}</div><div class="l">Blue / White</div></div>
-    <div><div class="n">${b.length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
+    <div><div class="n">${b.filter(imUmkreis).length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
     <div><div class="n">${l.length}</div><div class="l">Neukunden-Leads</div></div>
   </div>
   <div class="karte"><b>Wo es klemmt</b>
   <div class="zeile">Ohne Verantwortlichen: ${ohneV}</div>
   <div class="zeile">Ohne vollständiges Profil: ${a.length - voll}</div>
   <div class="zeile">Ohne Lebenslauf: ${Object.keys(status.profil).filter(k => !status.profil[k].cv).length}</div>
+  <div class="zeile">Ohne gültige Entfernungsangabe: ${b.filter(kmUnklar).length}</div>
   <div class="zeile">Profile angefordert: ${Object.keys(status.profil).filter(k => status.profil[k].profil_angefordert).length}</div>
   <div class="zeile">Profile geschrieben: ${Object.keys(status.profil).filter(k => status.profil[k].profil).length}</div></div>`;
   return h;
@@ -740,6 +757,8 @@ function blattProfil(name) {
   const p = pr(name), z0 = (daten.bestand || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) ||
     (daten.arbeitsliste || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) || {};
   const passt = passendeFuer(name);
+  const imkreis = (passt.bestand || []).filter(imUmkreis).sort(nachKm);
+  const kmUnklarListe = (passt.bestand || []).filter(kmUnklar);
   const jn = (id, wert, txt) => `<select id="${id}"><option value="">${txt}</option><option value="ja" ${wert === "ja" ? "selected" : ""}>ja</option></select>`;
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     <h3>Profil & Kriterien · ${esc(name)}</h3>
@@ -796,10 +815,10 @@ function blattProfil(name) {
     </div>
     <div class="hinweis">„Profil schreiben lassen" legt den Lebenslauf in die Warteschlange – das Profil steht dann hier, meist innerhalb einer Stunde.</div>
     <h3 style="margin-top:16px">Passende Stellen (automatisch, ${KM_MAX} km)</h3>
-    ${(passt.bestand.length ? passt.bestand.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
+    ${((imkreis.length ? imkreis.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
       <div class="zeile">${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
       <div class="knoepfe"><button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
-      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`)}
+      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`))}${kmUnklarListe.length ? `<div class="hinweis">Entfernung noch nicht geklärt: ${esc(kmUnklarListe.map(z => R(z, "unsere offene Stelle")).join(", "))}</div>` : ""}
     ${passt.leads.length ? `<h3>Neukunden mit passender Stelle</h3>` + passt.leads.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(z, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(z, "Kunde A/B"))}</span></div>
       <div class="zeile">${esc(R(z, "Anlass / Stelle"))} · Passung ${esc(R(z, "Passung"))}${R(z, "Ansprechpartner") ? " · " + esc(R(z, "Ansprechpartner")) : ""}</div>
       <div class="knoepfe">${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}

@@ -83,13 +83,14 @@ function ansichtAuswertung() {
     <div><div class="n">${ohneV}</div><div class="l">ohne Verantwortlichen</div></div>
     <div><div class="n">${voll}</div><div class="l">Profil vollständig</div></div>
     <div><div class="n">${blau}/${a.length - blau}</div><div class="l">Blue / White</div></div>
-    <div><div class="n">${b.length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
+    <div><div class="n">${b.filter(imUmkreis).length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
     <div><div class="n">${l.length}</div><div class="l">Neukunden-Leads</div></div>
   </div>
   <div class="karte"><b>Wo es klemmt</b>
   <div class="zeile">Ohne Verantwortlichen: ${ohneV}</div>
   <div class="zeile">Ohne vollständiges Profil: ${a.length - voll}</div>
   <div class="zeile">Ohne Lebenslauf: ${Object.keys(status.profil).filter(k => !status.profil[k].cv).length}</div>
+  <div class="zeile">Ohne gültige Entfernungsangabe: ${b.filter(kmUnklar).length}</div>
   <div class="zeile">Profile angefordert: ${Object.keys(status.profil).filter(k => status.profil[k].profil_angefordert).length}</div>
   <div class="zeile">Profile geschrieben: ${Object.keys(status.profil).filter(k => status.profil[k].profil).length}</div></div>`;
   return h;

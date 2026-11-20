@@ -62,7 +62,12 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026h";
+/* Eine Regel fuer alle Ansichten: genau 60 km zaehlt dazu, unbekannt oder negativ nicht. */
+function kmZahl(z) { const k = parseFloat(String(R(z, "km")).replace(",", ".")); return isFinite(k) && k >= 0 ? k : NaN; }
+function imUmkreis(z) { const k = kmZahl(z); return isFinite(k) && k <= KM_MAX; }
+function kmUnklar(z) { return !isFinite(kmZahl(z)); }
+function nachKm(a, b) { const ka = kmZahl(a), kb = kmZahl(b); return (isFinite(ka) ? ka : Infinity) - (isFinite(kb) ? kb : Infinity); }
+const FASSUNG = "20.11.2026i";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }

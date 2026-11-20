@@ -10,6 +10,8 @@ function blattProfil(name) {
   const p = pr(name), z0 = (daten.bestand || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) ||
     (daten.arbeitsliste || []).find(z => String(R(z, "Bewerber")).toLowerCase() === String(name).toLowerCase()) || {};
   const passt = passendeFuer(name);
+  const imkreis = (passt.bestand || []).filter(imUmkreis).sort(nachKm);
+  const kmUnklarListe = (passt.bestand || []).filter(kmUnklar);
   const jn = (id, wert, txt) => `<select id="${id}"><option value="">${txt}</option><option value="ja" ${wert === "ja" ? "selected" : ""}>ja</option></select>`;
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     <h3>Profil & Kriterien · ${esc(name)}</h3>
@@ -66,10 +68,10 @@ function blattProfil(name) {
     </div>
     <div class="hinweis">„Profil schreiben lassen" legt den Lebenslauf in die Warteschlange – das Profil steht dann hier, meist innerhalb einer Stunde.</div>
     <h3 style="margin-top:16px">Passende Stellen (automatisch, ${KM_MAX} km)</h3>
-    ${(passt.bestand.length ? passt.bestand.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
+    ${((imkreis.length ? imkreis.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
       <div class="zeile">${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
       <div class="knoepfe"><button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
-      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`)}
+      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`))}${kmUnklarListe.length ? `<div class="hinweis">Entfernung noch nicht geklärt: ${esc(kmUnklarListe.map(z => R(z, "unsere offene Stelle")).join(", "))}</div>` : ""}
     ${passt.leads.length ? `<h3>Neukunden mit passender Stelle</h3>` + passt.leads.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(z, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(z, "Kunde A/B"))}</span></div>
       <div class="zeile">${esc(R(z, "Anlass / Stelle"))} · Passung ${esc(R(z, "Passung"))}${R(z, "Ansprechpartner") ? " · " + esc(R(z, "Ansprechpartner")) : ""}</div>
       <div class="knoepfe">${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
