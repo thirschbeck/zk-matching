@@ -71,7 +71,7 @@ const URL_DATEN  = "https://kvdb.io/" + BUCKET + "/zk-app-daten";
 const URL_STATUS = "https://kvdb.io/" + BUCKET + "/zk-app-status";
 const ITER = 200000, KDF = "pbkdf2-sha256", VERSION = 1;
 
-let schluessel = null, daten = null, status = null, tab = "arbeit", filter = null;
+let schluessel = null, SALT = null, daten = null, status = null, tab = "arbeit", filter = null;
 
 /* ---------- Krypto ---------- */
 const b64e = b => btoa(String.fromCharCode(...new Uint8Array(b)));
@@ -92,10 +92,9 @@ async function entschluesseln(huelle, passwort) {
 }
 
 async function verschluesseln(objekt, k) {
-  const salt = b64e(crypto.getRandomValues(new Uint8Array(16)));
   const iv   = crypto.getRandomValues(new Uint8Array(12));
   const ct   = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, k, new TextEncoder().encode(JSON.stringify(objekt)));
-  return { v: VERSION, kdf: KDF, iter: ITER, salt, iv: b64e(iv), ct: b64e(ct) };
+  return { v: VERSION, kdf: KDF, iter: ITER, salt: SALT, iv: b64e(iv), ct: b64e(ct) };
 }
 
 /* ---------- Speicher ---------- */
@@ -118,6 +117,7 @@ async function anmelden(passwort, wer) {
   try { inhalt = await entschluesseln(h, passwort); }
   catch (e) { throw new Error("Passwort stimmt nicht."); }
   schluessel = await keyAus(passwort, h.salt, h.iter);
+  SALT = h.salt;
   daten = inhalt;
   const s = await hole(URL_STATUS);
   status = (s ? await entschluesseln(s, passwort).catch(() => null) : null) || { rows: {}, stelle: {}, stand: 0 };
