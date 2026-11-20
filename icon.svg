@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="34" fill="#0f2740"/>
+  <path d="M52 118 L96 44 L140 118" fill="none" stroke="#c8a24a" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="78" cy="134" r="13" fill="#ffffff"/>
+  <circle cx="114" cy="134" r="13" fill="#ffffff" opacity="0.75"/>
+  <text x="96" y="176" font-family="Helvetica,Arial,sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">ZK</text>
+</svg>

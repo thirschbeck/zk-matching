@@ -1,0 +1,12 @@
+{
+  "name": "ZK Professionals · Stellenmatching",
+  "short_name": "ZK Matching",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f9",
+  "theme_color": "#0f2740",
+  "lang": "de",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
