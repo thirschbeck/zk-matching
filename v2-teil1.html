@@ -131,7 +131,8 @@ async function lege(url, huelle) {
   return r.ok;
 }
 /* Lebensläufe liegen in eigenen Speichern – so bleibt der Hauptspeicher klein und schnell. */
-function cvName(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60); }
+function cvName(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60); }   /* alte Ablage, nur zum Weiterlesen */
+function cvKennung(name) { return String(idVon(name)).toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 60); }   /* Ablage an der dauerhaften Id */
 const CV_STUECK = 600000;   /* Zeichen je Speicher – ein Wert darf rund 1 MB groß sein */
 async function cvLegen(name, inhalt) {
   const b64 = inhalt.b64 || "";
@@ -140,7 +141,7 @@ async function cvLegen(name, inhalt) {
   for (let i = 1; i <= teile; i++) {
     const stueck = { name: inhalt.name, typ: inhalt.typ, b64: b64.slice((i - 1) * CV_STUECK, i * CV_STUECK) };
     if (teile > 1) { stueck.teil = i; stueck.teile = teile; }
-    const ziel = URL_CV + cvName(name) + (teile > 1 ? "-" + i : "");
+    const ziel = URL_CV + cvKennung(name) + (teile > 1 ? "-" + i : "");
     const r = await lege(ziel, await verschluesseln(stueck, schluessel));
     if (r !== 200) ok = false;
   }
@@ -154,17 +155,20 @@ async function cvHolen(name) {
       return JSON.parse(new TextDecoder().decode(klar));
     } catch (e) { return null; }
   };
-  const d = await mitSchluessel(await hole(URL_CV + cvName(name)));
-  if (d && d.b64) return d;
-  const d1 = await mitSchluessel(await hole(URL_CV + cvName(name) + "-1"));
-  if (!d1 || !d1.teile) return null;
-  let b64 = d1.b64 || "";
-  for (let i = 2; i <= d1.teile; i++) {
-    const di = await mitSchluessel(await hole(URL_CV + cvName(name) + "-" + i));
-    if (!di) return null;
-    b64 += di.b64 || "";
-  }
-  return { name: d1.name, typ: d1.typ, b64: b64 };
+  const holeMit = async praefix => {
+    const d = await mitSchluessel(await hole(URL_CV + praefix));
+    if (d && d.b64) return d;
+    const d1 = await mitSchluessel(await hole(URL_CV + praefix + "-1"));
+    if (!d1 || !d1.teile) return null;
+    let b64 = d1.b64 || "";
+    for (let i = 2; i <= d1.teile; i++) {
+      const di = await mitSchluessel(await hole(URL_CV + praefix + "-" + i));
+      if (!di) return null;
+      b64 += di.b64 || "";
+    }
+    return { name: d1.name, typ: d1.typ, b64: b64 };
+  };
+  return (await holeMit(cvKennung(name))) || (await holeMit(cvName(name)));
 }
 async function anmelden(passwort) {
   const h = await hole(URL_DATEN);

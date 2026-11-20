@@ -15,6 +15,7 @@ function blattProfil(name) {
   const jn = (id, wert, txt) => `<select id="${id}"><option value="">${txt}</option><option value="ja" ${wert === "ja" ? "selected" : ""}>ja</option></select>`;
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     <h3>Profil & Kriterien · ${esc(name)}</h3>
+    <div class="hinweis">Id ${esc(idVon(name))} · Name ${esc(name)}</div>
     <div class="hinweis">${esc(R(z0, "Zielrolle / Beruf"))} · ${esc(R(z0, "Wohnort"))} · ${verteidigung(z0) ? "Kunde Verteidigung – ZÜP/Ü2/SÜG nötig" : "ziviler Kunde"}</div>
     <div class="feld">
       <div><label>Ausbildung (Beruf, Abschluss, Jahr)</label><input id="pr_ausbildung" value="${esc(p.ausbildung || "")}"></div>

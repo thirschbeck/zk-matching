@@ -1,9 +1,20 @@
 /* ---------- Zeilen, Kennungen, Berufsbild ---------- */
 function R(z, feld) { return z && z[feld] != null ? z[feld] : ""; }
+function h32(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+/* Kennung je Zeile. Der Schluessel bleibt fuer bestehende Zeilen gleich; zwei verschiedene
+   Zeilen mit gleichem Anfang bekommen jetzt getrennte Kennungen (Befund 3). */
 function kennung(z, felder) {
-  const s = felder.map(f => String(R(z, f)), ).join("|").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 46);
-  let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return s + "~" + (h >>> 0).toString(36);
+  const s = felder.map(f => String(R(z, f))).join("|").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").replace(/^-+|-+$/g, "");
+  const grund = s.slice(0, 46) + "~" + h32(s.slice(0, 46));
+  const sig = h32(s);
+  status.sig = status.sig || {};
+  const besitzer = status.sig[grund];
+  if (besitzer === undefined) { status.sig[grund] = sig; return grund; }
+  if (besitzer === sig) return grund;
+  let n = 2, k = grund + "-" + n;
+  while (status.sig[k] !== undefined && status.sig[k] !== sig) k = grund + "-" + (++n);
+  status.sig[k] = sig;
+  return k;
 }
 const kArt = z => kennung(z, ["Bewerber", "Niederlassung"]);
 const kBest = z => kennung(z, ["Bewerber", "unsere offene Stelle", "Kunde (Bestand)"]);
@@ -13,6 +24,17 @@ const kNachk = z => kennung(z, ["Bewerber", "Stelle / Anlass", "Arbeitgeber"]);
 const kNachf = z => kennung(z, ["Bewerber", "beworben auf"]);
 const kLead = z => kennung(z, ["Bewerber", "Unternehmen (Neukunde)", "Anlass / Stelle"]);
 const kPerson = name => String(name || "").toLowerCase().replace(/[^a-z0-9äöüß]+/g, "-").slice(0, 60);
+
+/* ---------- Dauerhafte Id je Bewerber (Befund 2) ----------
+   Zuerst die Cockpit-Kennung (candidates-696091-A), sonst eine einmalig vergebene laufende Nummer. */
+function idTabelle() { status.ids = status.ids || {}; status.idNr = status.idNr || 0; return status.ids; }
+function idVon(name) {
+  const k = kPerson(name), tab = idTabelle(), p = status.profil[k];
+  if (p && p.id) { if (tab[k] !== p.id) tab[k] = p.id; return p.id; }
+  if (!tab[k]) { tab[k] = "neu-" + new Date().getFullYear() + "-" + String(++status.idNr).padStart(3, "0"); }
+  return tab[k];
+}
+function idSetzen(name, id) { const tab = idTabelle(), k = kPerson(name); if (id && tab[k] !== id) { tab[k] = id; statusSpeichern(); } }
 
 const VERTEIDIGUNG = /hensoldt|airbus defence|mbda|rheinmetall|diehl|esg |iabg|rohde|thales|leonardo|knds|ffg|atlas elektronik|krauss|heckler|defence|defense|bundeswehr|bwb|dstl|isr|optronik|prec|sens/;
 const verteidigung = z => VERTEIDIGUNG.test(String(R(z, "Kunde (Bestand)") || R(z, "Kunde") || R(z, "Unternehmen (Neukunde)") || R(z, "Arbeitgeber") || R(z, "Stelle / Anlass") || "").toLowerCase());
@@ -67,7 +89,7 @@ function kmZahl(z) { const k = parseFloat(String(R(z, "km")).replace(",", "."));
 function imUmkreis(z) { const k = kmZahl(z); return isFinite(k) && k <= KM_MAX; }
 function kmUnklar(z) { return !isFinite(kmZahl(z)); }
 function nachKm(a, b) { const ka = kmZahl(a), kb = kmZahl(b); return (isFinite(ka) ? ka : Infinity) - (isFinite(kb) ? kb : Infinity); }
-const FASSUNG = "20.11.2026i";
+const FASSUNG = "20.11.2026j";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
