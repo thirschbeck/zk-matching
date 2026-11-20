@@ -19,6 +19,7 @@ function verdrahtenListe() {
       p._t = Date.now(); statusSpeichern(); liste(); return;
     }
     if (d.e !== undefined) { const t = d.e.split("|"); blattBearbeiten(t[0], t[1]); return; }
+    if (d.stelle !== undefined) { const t = d.stelle.split("|"), p = pr(t[1]); p.stelle_gewaehlt = t[0]; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(t[1]); return; }
     if (d.p !== undefined) { blattProfil(d.p); return; }
     if (d.mat !== undefined) { blattPassende(d.mat); return; }
     if (d.rs !== undefined) { blattRuecksprache(d.rs); return; }
@@ -50,7 +51,7 @@ function blattPassende(name) {
     <button class="k gruen" data-vor="${esc(kBest(x))}">Vorschlag erstellen</button></div></div>`).join("");
   const leads = (passt.leads || []).map(x => `<div class="karte"><div class="titel">${esc(R(x, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(x, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(x, "Kunde A/B"))}</span></div>
     <div class="zeile">${esc(R(x, "Anlass / Stelle"))} · Passung ${esc(R(x, "Passung"))}</div>
-    <div class="knoepfe">${R(x, "Link") ? `<button class="k hell" data-url="${esc(R(x, "Link"))}">Stellen-Link öffnen</button>` : ""}${/^a/i.test(String(R(x, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(x))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("");
+    <div class="knoepfe">${guterLink(R(x, "Link")) ? `<button class="k hell" data-url="${esc(guterLink(R(x, "Link")))}">Stellen-Link öffnen</button>` : ""}${/^a/i.test(String(R(x, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(x))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("");
   const leer = `<div class="hinweis">Kein Treffer im ${KM_MAX}-km-Umkreis. Nächster Schritt laut Liste: ${esc(R(z, "Nächster Schritt") || "Kunden ansprechen oder Umkreis prüfen")}.</div>`;
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     ${kopf}
@@ -63,12 +64,12 @@ function blattBearbeiten(art, id) {
   const r = st(art, id);
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     <h3>Notizen bearbeiten</h3>
-    ${felder.map(f => `<label>${esc(f)}</label><input data-feld="${esc(f)}" value="${esc(r[f] || "")}">`).join("")}
-    <label>Freie Notiz</label><textarea data-feld="notiz">${esc(r.notiz || "")}</textarea>
+    ${felder.map(f => `<label>${esc(f)}</label><input data-feld="${esc(f)}" value="${esc(feldWert(r, f))}">`).join("")}
+    <label>Freie Notiz</label><textarea data-feld="Notiz">${esc(feldWert(r, "Notiz"))}</textarea>
     <div class="knoepfe"><button class="k" data-sich="1">Speichern</button><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
     q("[data-sich]").onclick = () => {
       const rr = st(art, id);
-      qa("[data-feld]").forEach(f => { if (f.value === "") delete rr[f.dataset.feld]; else rr[f.dataset.feld] = f.value; });
+      qa("[data-feld]").forEach(f => { const n = f.dataset.feld, a = andereSchreibweise(n); if (f.value === "") { delete rr[n]; delete rr[a]; } else { rr[n] = f.value; delete rr[a]; } });
       rr._t = Date.now(); statusSpeichern(); oeffne(null); liste();
     };
   });
@@ -89,12 +90,12 @@ function blattBearbeitenNeukunde(id) {
 }
 /* ---------- Stelle & Link ---------- */
 function stelleUndLink(kunde, stelle, ort) {
-  const lead = (daten.leads || []).find(z => String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) && String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) === String(kunde || "").toLowerCase().slice(0, 12));
+  const lead = (daten.leads || []).find(z => kundeGleich(R(z, "Unternehmen (Neukunde)"), kunde));
   const zeilen = [];
   zeilen.push("Stelle: " + (stelle || "—"));
   zeilen.push("Kunde: " + (kunde || "—"));
   zeilen.push("Einsatzort: " + (ort || "—"));
-  if (lead && R(lead, "Link")) zeilen.push("Stellen-Link (Karriereseite des Kunden): " + R(lead, "Link"));
+  if (lead && guterLink(R(lead, "Link"))) zeilen.push("Stellen-Link (Karriereseite des Kunden): " + guterLink(R(lead, "Link")));
   else zeilen.push("Karriereseite/Suche: https://www.google.com/search?q=" + encodeURIComponent("Karriere " + (kunde || "") + " " + (ort || "")));
   zeilen.push("Im Cockpit: " + (stelle || ""));
   zeilen.push("Umkreis: gilt bis " + KM_MAX + " km (Wohnort × Einsatzort).");

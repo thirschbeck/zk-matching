@@ -290,7 +290,53 @@ function idSetzen(name, id) { const tab = idTabelle(), k = kPerson(name); if (id
 
 const VERTEIDIGUNG = /hensoldt|airbus defence|mbda|rheinmetall|diehl|esg |iabg|rohde|thales|leonardo|knds|ffg|atlas elektronik|krauss|heckler|defence|defense|bundeswehr|bwb|dstl|isr|optronik|prec|sens/;
 const verteidigung = z => VERTEIDIGUNG.test(String(R(z, "Kunde (Bestand)") || R(z, "Kunde") || R(z, "Unternehmen (Neukunde)") || R(z, "Arbeitgeber") || R(z, "Stelle / Anlass") || "").toLowerCase());
-const istBlue = z => /blue/i.test(String(R(z, "Blue/White")));
+/* Kragenfarbe: Blue, White oder nicht zugeordnet (Befund 16) */
+const kragenart = z => { const s = String(R(z, "Blue/White") || "").trim().toLowerCase(); return s.indexOf("blue") === 0 ? "blue" : s.indexOf("white") === 0 ? "white" : "offen"; };
+const istBlue = z => kragenart(z) === "blue";
+const istWhite = z => kragenart(z) === "white";
+const istOffen = z => kragenart(z) === "offen";
+/* Ein Filter für alle Ansichten – unbekannt ist nicht White (Befund 16) */
+function passtFilter(z) {
+  if (!filter) return true;
+  if (filter === "Blue Collar") return istBlue(z);
+  if (filter === "White Collar") return istWhite(z);
+  if (filter === "nicht zugeordnet") return istOffen(z);
+  if (filter === "nur vollständig") return fehlendePunkte(R(z, "Bewerber"), z).length === 0;
+  if (filter === "nur A-Kunden") return /^a/i.test(String(R(z, "Kunde A/B")));
+  return true;
+}
+/* Links immer mit Schema (Befund 25) */
+function guterLink(u) {
+  const s = String(u || "").trim();
+  if (/^https?:\/\//i.test(s)) return s;
+  if (/^www\./i.test(s) || /^[a-z0-9-]+(\.[a-z0-9-]{2,})+(\/|$)/i.test(s)) return "https://" + s;
+  return "";
+}
+/* Kundennamen vollständig vergleichen statt erste zwölf Zeichen (Befund 15) */
+const kundeNorm = s => String(s || "").toLowerCase()
+  .replace(/gmbh|mbh|aktiengesellschaft|\bag\b|\bkg\b|\bco\b|\bse\b|\binc\b|\bltd\b|holding|gruppe|group|verwaltung|deutschland|international|&/g, " ")
+  .replace(/[^a-z0-9äöüß]+/g, " ").trim();
+function kundeGleich(a, b) {
+  const x = kundeNorm(a), y = kundeNorm(b);
+  if (!x || !y) return false;
+  if (x === y) return true;
+  /* der eine Name darf den anderen nur um genau ein ganzes Wort ergaenzen (z. B. Ort) –
+     "Meier" und "Meierhof" sind damit zwei verschiedene Kunden (Befund 15) */
+  const X = x.split(" "), Y = y.split(" ");
+  const kurz = X.length <= Y.length ? X : Y, lang = X.length <= Y.length ? Y : X;
+  if (kurz.length < 2 || lang.length !== kurz.length + 1) return false;
+  return kurz.every((w, i) => lang[i] === w);
+}
+/* Feldnamen in beiden Schreibweisen lesen und zusammenführen (Befund 22) */
+const andereSchreibweise = f => f === f.toLowerCase() ? f.charAt(0).toUpperCase() + f.slice(1) : f.toLowerCase();
+function feldWert(r, f) { if (r[f] !== undefined) return r[f]; const a = andereSchreibweise(f); return r[a] !== undefined ? r[a] : ""; }
+/* Gewählte Stelle je Bewerber (Befund 14) */
+function gewaehlteStelle(name) {
+  const pass = (passendeFuer(name).bestand || []);
+  const gew = pr(name).stelle_gewaehlt;
+  if (gew) { const z = pass.find(x => kBest(x) === gew); if (z) return z; }
+  return pass.length === 1 ? pass[0] : null;
+}
 
 /* ---------- Bewerberprofil (Kriterien) ---------- */
 function pr(name) { const k = kPerson(name); status.profil[k] = Object.assign({ cv: null }, status.profil[k] || {}); return status.profil[k]; }
@@ -341,7 +387,7 @@ function kmZahl(z) { const k = parseFloat(String(R(z, "km")).replace(",", "."));
 function imUmkreis(z) { const k = kmZahl(z); return isFinite(k) && k <= KM_MAX; }
 function kmUnklar(z) { return !isFinite(kmZahl(z)); }
 function nachKm(a, b) { const ka = kmZahl(a), kb = kmZahl(b); return (isFinite(ka) ? ka : Infinity) - (isFinite(kb) ? kb : Infinity); }
-const FASSUNG = "20.11.2026k";
+const FASSUNG = "20.11.2026l";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
@@ -379,7 +425,7 @@ function verdrahten() {
     if (h === "bm") { sessionStorage.removeItem("zk_pass"); sessionStorage.removeItem("zk_master"); location.reload(); }
     else if (h === "neu") {
       (async () => {
-        try { const ks = await caches.keys(); await Promise.all(ks.map(k => caches.delete(k))); } catch (e) {}
+        try { const ks = (await caches.keys()).filter(k => k.indexOf("zk-matching") === 0); await Promise.all(ks.map(k => caches.delete(k))); } catch (e) {}
         try { const rs = await navigator.serviceWorker.getRegistrations(); await Promise.all(rs.map(r => r.unregister())); } catch (e) {}
         location.reload();
       })();
@@ -442,7 +488,7 @@ function kopfLeiste(arten) {
 }
 function tagsAus(z, name) {
   const t = [];
-  t.push(`<span class="tag ${istBlue(z) ? "blue" : "white"}">${istBlue(z) ? "Blue Collar" : "White Collar"}</span>`);
+  t.push(`<span class="tag ${istBlue(z) ? "blue" : istWhite(z) ? "white" : "grau"}">${istBlue(z) ? "Blue Collar" : istWhite(z) ? "White Collar" : "nicht zugeordnet"}</span>`);
   if (verteidigung(z)) t.push(`<span class="tag rot">Verteidigung · ZÜP/Ü2/SÜG</span>`);
   const p = pr(name), offen = fehlendePunkte(name, z);
   t.push(offen.length === 0 ? `<span class="tag ok">Profil vollständig</span>` : `<span class="tag warn">${offen.length} Punkt(e) offen</span>`);
@@ -465,8 +511,8 @@ function knopfZeile(z, art, id, name) {
 /* ---------- Arbeitsliste ---------- */
 function ansichtArbeit() {
   const alle = (daten.arbeitsliste || []).filter(passtSuche);
-  const zs = alle.filter(z => (!filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z))) && passtBearbeiter(R(z, "Bewerber"), z));
-  let h = kopfLeiste(["Blue Collar", "White Collar"]);
+  const zs = alle.filter(z => passtFilter(z) && passtBearbeiter(R(z, "Bewerber"), z));
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nicht zugeordnet"]);
   h += kopfBearbeiter(alle);
   h += `<h2>Arbeitsliste · ${zs.length} Bewerber</h2>`;
   if (!zs.length) h += `<div class="karte">Keine Bewerber für diese Auswahl.</div>`;
@@ -501,7 +547,7 @@ function ansichtEingang() {
       <div class="zeile">Status ${esc(R(z, "Status"))} · Recruiter ${esc(R(z, "Recruiter"))} · Match Bestand ${esc(R(z, "Match Bestand"))} · neue Stellen ${esc(R(z, "Match neue Stellen"))}</div>
       ${tagsAus(z, R(z, "Bewerber"))}
       <div class="knoepfe">
-        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(kPerson(R(z, "Bewerber")))}|${esc(R(z, "Bewerber"))}|erledigt_eingang">${r.erledigt ? "✓ bearbeitet" : "bearbeitet"}</button>
+        <button class="k ${r.erledigt || r.erledigt_eingang ? "gruen" : "hell"}" data-g="${esc(kPerson(R(z, "Bewerber")))}|${esc(R(z, "Bewerber"))}|erledigt">${r.erledigt || r.erledigt_eingang ? "✓ bearbeitet" : "bearbeitet"}</button>
         <button class="k" data-p="${esc(R(z, "Bewerber"))}">Profil & Kriterien</button>
         <button class="k hell" data-e="eingang|${esc(id)}">Bearbeiten</button>
       </div></div>`;
@@ -511,13 +557,11 @@ function ansichtEingang() {
 /* ---------- Matching (Bestandskunden, 60 km) ---------- */
 function ansichtMatching() {
   let zs = (daten.bestand || []).filter(passtSuche);
-  if (filter === "Blue Collar") zs = zs.filter(istBlue);
-  if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
-  if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
+  zs = zs.filter(passtFilter);
   zs = zs.filter(z => passtBearbeiter(R(z, "Bewerber"), z));
   const unklar = zs.filter(kmUnklar);
   zs = zs.filter(imUmkreis).sort(nachKm);
-  let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nicht zugeordnet", "nur vollständig"]);
   h += kopfBearbeiter(daten.bestand || [], "Bearbeiter");
   h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
     <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung aufsteigend sortiert (genau 60 km zählt dazu). Stellen ohne gültige Entfernung stehen unten getrennt. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
@@ -547,10 +591,8 @@ function ansichtMatching() {
 /* ---------- Neukunden: eigenes Blatt ---------- */
 function ansichtNeukunden() {
   let zs = (daten.leads || []).filter(passtSuche);
-  if (filter === "Blue Collar") zs = zs.filter(istBlue);
-  if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
-  if (filter === "nur A-Kunden") zs = zs.filter(z => /^a/i.test(String(R(z, "Kunde A/B"))));
-  let h = kopfLeiste(["Blue Collar", "White Collar", "nur A-Kunden"]);
+  zs = zs.filter(passtFilter);
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nicht zugeordnet", "nur A-Kunden"]);
   h += `<h2>Neukunden · ${zs.length} Leads (eigenes Blatt)</h2>
     <div class="hinweis">A-Kunden sprechen wir mit Namen an, B-Kunden haben oft nur eine info@-Adresse – dort kein Kaltkontakt (§ 7 UWG). Alle Eingaben hier bleiben getrennt von der Arbeitsliste.</div>`;
   zs.forEach(z => {
@@ -561,7 +603,7 @@ function ansichtNeukunden() {
       <div class="zeile">${esc(R(z, "Anlass / Stelle"))}${R(z, "Ansprechpartner") ? " · Ansprechpartner: " + esc(R(z, "Ansprechpartner")) : ""}${R(z, "Kontaktweg") ? " · " + esc(R(z, "Kontaktweg")) : ""}</div>
       ${tagsAus(z, R(z, "Bewerber"))}
       <div class="knoepfe">
-        ${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+        ${guterLink(R(z, "Link")) ? `<button class="k hell" data-url="${esc(guterLink(R(z, "Link")))}">Stellen-Link öffnen</button>` : ""}
         <button class="k ${r.kontakt ? "gruen" : "hell"}" data-nk="${esc(id)}|kontakt">${r.kontakt ? "✓ Kontakt aufgenommen" : "Kontakt aufgenommen"}</button>
         ${aKunde ? `<button class="k gruen" data-nkvor="${esc(id)}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}
         <button class="k hell" data-nke="${esc(id)}">Bearbeiten</button>
@@ -653,11 +695,13 @@ function ansichtAuswertung() {
   const ohneV = a.filter(z => !st("arbeit", kArt(z)).verantwortlicher).length;
   const voll = a.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0).length;
   const blau = a.filter(istBlue).length;
+  const weiss = a.filter(istWhite).length;
+  const ohneFarbe = a.filter(istOffen).length;
   let h = `<h2>Auswertung</h2><div class="kpi">
     <div><div class="n">${a.length}</div><div class="l">Bewerber in der Arbeitsliste</div></div>
     <div><div class="n">${ohneV}</div><div class="l">ohne Verantwortlichen</div></div>
     <div><div class="n">${voll}</div><div class="l">Profil vollständig</div></div>
-    <div><div class="n">${blau}/${a.length - blau}</div><div class="l">Blue / White</div></div>
+    <div><div class="n">${blau}/${weiss}</div><div class="l">Blue / White${ohneFarbe ? " · " + ohneFarbe + " ohne Zuordnung" : ""}</div></div>
     <div><div class="n">${b.filter(imUmkreis).length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
     <div><div class="n">${l.length}</div><div class="l">Neukunden-Leads</div></div>
   </div>
@@ -691,6 +735,7 @@ function verdrahtenListe() {
       p._t = Date.now(); statusSpeichern(); liste(); return;
     }
     if (d.e !== undefined) { const t = d.e.split("|"); blattBearbeiten(t[0], t[1]); return; }
+    if (d.stelle !== undefined) { const t = d.stelle.split("|"), p = pr(t[1]); p.stelle_gewaehlt = t[0]; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(t[1]); return; }
     if (d.p !== undefined) { blattProfil(d.p); return; }
     if (d.mat !== undefined) { blattPassende(d.mat); return; }
     if (d.rs !== undefined) { blattRuecksprache(d.rs); return; }
@@ -722,7 +767,7 @@ function blattPassende(name) {
     <button class="k gruen" data-vor="${esc(kBest(x))}">Vorschlag erstellen</button></div></div>`).join("");
   const leads = (passt.leads || []).map(x => `<div class="karte"><div class="titel">${esc(R(x, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(x, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(x, "Kunde A/B"))}</span></div>
     <div class="zeile">${esc(R(x, "Anlass / Stelle"))} · Passung ${esc(R(x, "Passung"))}</div>
-    <div class="knoepfe">${R(x, "Link") ? `<button class="k hell" data-url="${esc(R(x, "Link"))}">Stellen-Link öffnen</button>` : ""}${/^a/i.test(String(R(x, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(x))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("");
+    <div class="knoepfe">${guterLink(R(x, "Link")) ? `<button class="k hell" data-url="${esc(guterLink(R(x, "Link")))}">Stellen-Link öffnen</button>` : ""}${/^a/i.test(String(R(x, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(x))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("");
   const leer = `<div class="hinweis">Kein Treffer im ${KM_MAX}-km-Umkreis. Nächster Schritt laut Liste: ${esc(R(z, "Nächster Schritt") || "Kunden ansprechen oder Umkreis prüfen")}.</div>`;
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     ${kopf}
@@ -735,12 +780,12 @@ function blattBearbeiten(art, id) {
   const r = st(art, id);
   oeffne(`<div class="tuch" data-h="zu"><div class="blatt" onclick="event.stopPropagation()">
     <h3>Notizen bearbeiten</h3>
-    ${felder.map(f => `<label>${esc(f)}</label><input data-feld="${esc(f)}" value="${esc(r[f] || "")}">`).join("")}
-    <label>Freie Notiz</label><textarea data-feld="notiz">${esc(r.notiz || "")}</textarea>
+    ${felder.map(f => `<label>${esc(f)}</label><input data-feld="${esc(f)}" value="${esc(feldWert(r, f))}">`).join("")}
+    <label>Freie Notiz</label><textarea data-feld="Notiz">${esc(feldWert(r, "Notiz"))}</textarea>
     <div class="knoepfe"><button class="k" data-sich="1">Speichern</button><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => {
     q("[data-sich]").onclick = () => {
       const rr = st(art, id);
-      qa("[data-feld]").forEach(f => { if (f.value === "") delete rr[f.dataset.feld]; else rr[f.dataset.feld] = f.value; });
+      qa("[data-feld]").forEach(f => { const n = f.dataset.feld, a = andereSchreibweise(n); if (f.value === "") { delete rr[n]; delete rr[a]; } else { rr[n] = f.value; delete rr[a]; } });
       rr._t = Date.now(); statusSpeichern(); oeffne(null); liste();
     };
   });
@@ -761,12 +806,12 @@ function blattBearbeitenNeukunde(id) {
 }
 /* ---------- Stelle & Link ---------- */
 function stelleUndLink(kunde, stelle, ort) {
-  const lead = (daten.leads || []).find(z => String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) && String(R(z, "Unternehmen (Neukunde)")).toLowerCase().slice(0, 12) === String(kunde || "").toLowerCase().slice(0, 12));
+  const lead = (daten.leads || []).find(z => kundeGleich(R(z, "Unternehmen (Neukunde)"), kunde));
   const zeilen = [];
   zeilen.push("Stelle: " + (stelle || "—"));
   zeilen.push("Kunde: " + (kunde || "—"));
   zeilen.push("Einsatzort: " + (ort || "—"));
-  if (lead && R(lead, "Link")) zeilen.push("Stellen-Link (Karriereseite des Kunden): " + R(lead, "Link"));
+  if (lead && guterLink(R(lead, "Link"))) zeilen.push("Stellen-Link (Karriereseite des Kunden): " + guterLink(R(lead, "Link")));
   else zeilen.push("Karriereseite/Suche: https://www.google.com/search?q=" + encodeURIComponent("Karriere " + (kunde || "") + " " + (ort || "")));
   zeilen.push("Im Cockpit: " + (stelle || ""));
   zeilen.push("Umkreis: gilt bis " + KM_MAX + " km (Wohnort × Einsatzort).");
@@ -843,13 +888,15 @@ function blattProfil(name) {
     </div>
     <div class="hinweis">„Profil schreiben lassen" legt den Lebenslauf in die Warteschlange – das Profil steht dann hier, meist innerhalb einer Stunde.</div>
     <h3 style="margin-top:16px">Passende Stellen (automatisch, ${KM_MAX} km)</h3>
+    <div class="hinweis">${gewaehlteStelle(name) ? "Grundlage für Profil- und Kundentext: " + esc(R(gewaehlteStelle(name), "unsere offene Stelle")) : "Noch keine Stelle gewählt – Profil- und Kundentext nehmen erst nach der Auswahl eine Stelle."}</div>
     ${((imkreis.length ? imkreis.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
       <div class="zeile">${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
       <div class="knoepfe"><button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
-      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`))}${kmUnklarListe.length ? `<div class="hinweis">Entfernung noch nicht geklärt: ${esc(kmUnklarListe.map(z => R(z, "unsere offene Stelle")).join(", "))}</div>` : ""}
+      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button>
+      <button class="k hell" data-stelle="${esc(kBest(z) + "|" + name)}">${gewaehlteStelle(name) && kBest(gewaehlteStelle(name)) === kBest(z) ? "✓ gewählte Stelle" : "Als Stelle wählen"}</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`))}${kmUnklarListe.length ? `<div class="hinweis">Entfernung noch nicht geklärt: ${esc(kmUnklarListe.map(z => R(z, "unsere offene Stelle")).join(", "))}</div>` : ""}
     ${passt.leads.length ? `<h3>Neukunden mit passender Stelle</h3>` + passt.leads.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(z, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(z, "Kunde A/B"))}</span></div>
       <div class="zeile">${esc(R(z, "Anlass / Stelle"))} · Passung ${esc(R(z, "Passung"))}${R(z, "Ansprechpartner") ? " · " + esc(R(z, "Ansprechpartner")) : ""}</div>
-      <div class="knoepfe">${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+      <div class="knoepfe">${guterLink(R(z, "Link")) ? `<button class="k hell" data-url="${esc(guterLink(R(z, "Link")))}">Stellen-Link öffnen</button>` : ""}
       ${/^a/i.test(String(R(z, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(z))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("") : ""}
     <div class="knoepfe"><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => bindProfil(name));
 }
@@ -867,7 +914,7 @@ function profilLesen(name) {
   return p;
 }
 function bindProfil(name) {
-  qa("[data-it]").forEach(b => b.onclick = () => { const p = pr(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(name); });
+  qa("[data-it]").forEach(b => b.onclick = async () => { const p = profilLesen(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); await statusSpeichern(); oeffne(null); blattProfil(name); });
   q("#pr_cv").onchange = e => {
     const f = e.target.files[0]; if (!f) return;
     if (f.size > 2500000) { setFuss("Die Datei ist größer als 2,5 MB – bitte verkleinern."); return; }
@@ -895,8 +942,11 @@ function bindProfil(name) {
     const bin = Uint8Array.from(atob(inhalt.b64), c => c.charCodeAt(0));
     window.open(URL.createObjectURL(new Blob([bin], { type: inhalt.typ || "application/octet-stream" })), "_blank");
   };
-  q("[data-prs]").onclick = () => {
-    profilLesen(name); statusSpeichern(); setFuss("Profil gespeichert."); liste();
+  q("[data-prs]").onclick = async () => {
+    profilLesen(name);
+    const ok = await statusSpeichern();
+    setFuss(ok ? "Profil gespeichert." : "Speichern hat nicht geklappt – bitte noch einmal versuchen.");
+    if (ok) { oeffne(null); liste(); } else { blattProfil(name); }
   };
   q("[data-prf]").onclick = () => {
     const p = pr(name);
@@ -943,12 +993,15 @@ function kriterienBlock(name, z) {
   zeig("Sicherheitsüberprüfung", suep);
   zeig("Wohnort", R(z, "Wohnort"));
   zeig("Zielrolle", R(z, "Zielrolle / Beruf"));
-  zeig("Kragenfarbe", istBlue(z) ? "Blue Collar (gewerblich/technisch)" : "White Collar (kaufmännisch/ingenieurmäßig)");
+  zeig("Kragenfarbe", istBlue(z) ? "Blue Collar (gewerblich/technisch)" : istWhite(z) ? "White Collar (kaufmännisch/ingenieurmäßig)" : "noch nicht zugeordnet – bitte prüfen");
   return zl.join("\n");
 }
 function profilAnKunde(name) {
-  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const passt = passendeFuer(name);
+  const gw = gewaehlteStelle(name);
+  const z = gw || passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
   const p = pr(name), offen = fehlendePunkte(name, z);
+  if (!gw && passt.bestand.length > 1) offen.unshift("Es passen mehrere Stellen – im Profilblatt die passende Stelle wählen („Als Stelle wählen“).");
   const kopf = [
     "KANDIDATENPROFIL (intern, Stand " + new Date().toLocaleDateString("de-DE") + ")",
     "",
@@ -976,14 +1029,16 @@ function entwurfNeukunde(z) {
   const name = R(z, "Bewerber");
   return "Betreff: " + (R(z, "Anlass / Stelle")) + " – passender Bewerber aus unserem Netz\n\n" +
     "Guten Tag" + (R(z, "Ansprechpartner") ? " " + R(z, "Ansprechpartner") : "") + ",\n\n" +
-    "wir sind auf Ihre Ausschreibung „" + R(z, "Anlass / Stelle") + "\u201c aufmerksam geworden" + (R(z, "Link") ? " (" + R(z, "Link") + ")" : "") + ".\n\n" +
+    "wir sind auf Ihre Ausschreibung „" + R(z, "Anlass / Stelle") + "\u201c aufmerksam geworden" + (guterLink(R(z, "Link")) ? " (" + guterLink(R(z, "Link")) + ")" : "") + ".\n\n" +
     "Für diese Position haben wir " + name + " im Zugang, " + R(z, "Wohnort") + ", " + R(z, "Zielrolle / Beruf") + ":\n\n" +
     kriterienBlock(name, z) + "\n\n" +
     "Sollen wir Ihnen den Lebenslauf und ein Kurzprofil zusenden? Wir vermitteln Fach- und Führungskräfte in der Luftfahrt und im technischen Umfeld, Festanstellung und Überlassung.\n\n" +
     "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
 }
 function entwurfRuecksprache(name) {
-  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const passt = passendeFuer(name);
+  const gw = gewaehlteStelle(name);
+  const z = gw || passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
   const p = pr(name), offen = fehlendePunkte(name, z);
   return "Betreff: Ihre Bewerbung – kurze Rückfragen\n\n" +
     "Guten Tag " + (name.split(" ").slice(-1)[0] || name) + ",\n\n" +

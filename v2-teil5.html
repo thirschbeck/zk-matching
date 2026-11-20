@@ -78,11 +78,13 @@ function ansichtAuswertung() {
   const ohneV = a.filter(z => !st("arbeit", kArt(z)).verantwortlicher).length;
   const voll = a.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0).length;
   const blau = a.filter(istBlue).length;
+  const weiss = a.filter(istWhite).length;
+  const ohneFarbe = a.filter(istOffen).length;
   let h = `<h2>Auswertung</h2><div class="kpi">
     <div><div class="n">${a.length}</div><div class="l">Bewerber in der Arbeitsliste</div></div>
     <div><div class="n">${ohneV}</div><div class="l">ohne Verantwortlichen</div></div>
     <div><div class="n">${voll}</div><div class="l">Profil vollständig</div></div>
-    <div><div class="n">${blau}/${a.length - blau}</div><div class="l">Blue / White</div></div>
+    <div><div class="n">${blau}/${weiss}</div><div class="l">Blue / White${ohneFarbe ? " · " + ohneFarbe + " ohne Zuordnung" : ""}</div></div>
     <div><div class="n">${b.filter(imUmkreis).length}</div><div class="l">Treffer im ${KM_MAX}-km-Umkreis</div></div>
     <div><div class="n">${l.length}</div><div class="l">Neukunden-Leads</div></div>
   </div>

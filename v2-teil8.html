@@ -13,12 +13,15 @@ function kriterienBlock(name, z) {
   zeig("Sicherheitsüberprüfung", suep);
   zeig("Wohnort", R(z, "Wohnort"));
   zeig("Zielrolle", R(z, "Zielrolle / Beruf"));
-  zeig("Kragenfarbe", istBlue(z) ? "Blue Collar (gewerblich/technisch)" : "White Collar (kaufmännisch/ingenieurmäßig)");
+  zeig("Kragenfarbe", istBlue(z) ? "Blue Collar (gewerblich/technisch)" : istWhite(z) ? "White Collar (kaufmännisch/ingenieurmäßig)" : "noch nicht zugeordnet – bitte prüfen");
   return zl.join("\n");
 }
 function profilAnKunde(name) {
-  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const passt = passendeFuer(name);
+  const gw = gewaehlteStelle(name);
+  const z = gw || passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
   const p = pr(name), offen = fehlendePunkte(name, z);
+  if (!gw && passt.bestand.length > 1) offen.unshift("Es passen mehrere Stellen – im Profilblatt die passende Stelle wählen („Als Stelle wählen“).");
   const kopf = [
     "KANDIDATENPROFIL (intern, Stand " + new Date().toLocaleDateString("de-DE") + ")",
     "",
@@ -46,14 +49,16 @@ function entwurfNeukunde(z) {
   const name = R(z, "Bewerber");
   return "Betreff: " + (R(z, "Anlass / Stelle")) + " – passender Bewerber aus unserem Netz\n\n" +
     "Guten Tag" + (R(z, "Ansprechpartner") ? " " + R(z, "Ansprechpartner") : "") + ",\n\n" +
-    "wir sind auf Ihre Ausschreibung „" + R(z, "Anlass / Stelle") + "\u201c aufmerksam geworden" + (R(z, "Link") ? " (" + R(z, "Link") + ")" : "") + ".\n\n" +
+    "wir sind auf Ihre Ausschreibung „" + R(z, "Anlass / Stelle") + "\u201c aufmerksam geworden" + (guterLink(R(z, "Link")) ? " (" + guterLink(R(z, "Link")) + ")" : "") + ".\n\n" +
     "Für diese Position haben wir " + name + " im Zugang, " + R(z, "Wohnort") + ", " + R(z, "Zielrolle / Beruf") + ":\n\n" +
     kriterienBlock(name, z) + "\n\n" +
     "Sollen wir Ihnen den Lebenslauf und ein Kurzprofil zusenden? Wir vermitteln Fach- und Führungskräfte in der Luftfahrt und im technischen Umfeld, Festanstellung und Überlassung.\n\n" +
     "Freundliche Grüße\nThomas Hirschbeck\nZK Professionals · HITO Holding GmbH";
 }
 function entwurfRuecksprache(name) {
-  const passt = passendeFuer(name), z = passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
+  const passt = passendeFuer(name);
+  const gw = gewaehlteStelle(name);
+  const z = gw || passt.bestand[0] || (daten.arbeitsliste || []).find(x => String(R(x, "Bewerber")) === String(name)) || {};
   const p = pr(name), offen = fehlendePunkte(name, z);
   return "Betreff: Ihre Bewerbung – kurze Rückfragen\n\n" +
     "Guten Tag " + (name.split(" ").slice(-1)[0] || name) + ",\n\n" +

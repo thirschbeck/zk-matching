@@ -1,8 +1,8 @@
 /* ---------- Arbeitsliste ---------- */
 function ansichtArbeit() {
   const alle = (daten.arbeitsliste || []).filter(passtSuche);
-  const zs = alle.filter(z => (!filter || (filter === "Blue Collar" ? istBlue(z) : !istBlue(z))) && passtBearbeiter(R(z, "Bewerber"), z));
-  let h = kopfLeiste(["Blue Collar", "White Collar"]);
+  const zs = alle.filter(z => passtFilter(z) && passtBearbeiter(R(z, "Bewerber"), z));
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nicht zugeordnet"]);
   h += kopfBearbeiter(alle);
   h += `<h2>Arbeitsliste · ${zs.length} Bewerber</h2>`;
   if (!zs.length) h += `<div class="karte">Keine Bewerber für diese Auswahl.</div>`;
@@ -37,7 +37,7 @@ function ansichtEingang() {
       <div class="zeile">Status ${esc(R(z, "Status"))} · Recruiter ${esc(R(z, "Recruiter"))} · Match Bestand ${esc(R(z, "Match Bestand"))} · neue Stellen ${esc(R(z, "Match neue Stellen"))}</div>
       ${tagsAus(z, R(z, "Bewerber"))}
       <div class="knoepfe">
-        <button class="k ${r.erledigt ? "gruen" : "hell"}" data-g="${esc(kPerson(R(z, "Bewerber")))}|${esc(R(z, "Bewerber"))}|erledigt_eingang">${r.erledigt ? "✓ bearbeitet" : "bearbeitet"}</button>
+        <button class="k ${r.erledigt || r.erledigt_eingang ? "gruen" : "hell"}" data-g="${esc(kPerson(R(z, "Bewerber")))}|${esc(R(z, "Bewerber"))}|erledigt">${r.erledigt || r.erledigt_eingang ? "✓ bearbeitet" : "bearbeitet"}</button>
         <button class="k" data-p="${esc(R(z, "Bewerber"))}">Profil & Kriterien</button>
         <button class="k hell" data-e="eingang|${esc(id)}">Bearbeiten</button>
       </div></div>`;
@@ -47,13 +47,11 @@ function ansichtEingang() {
 /* ---------- Matching (Bestandskunden, 60 km) ---------- */
 function ansichtMatching() {
   let zs = (daten.bestand || []).filter(passtSuche);
-  if (filter === "Blue Collar") zs = zs.filter(istBlue);
-  if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
-  if (filter === "nur vollständig") zs = zs.filter(z => fehlendePunkte(R(z, "Bewerber"), z).length === 0);
+  zs = zs.filter(passtFilter);
   zs = zs.filter(z => passtBearbeiter(R(z, "Bewerber"), z));
   const unklar = zs.filter(kmUnklar);
   zs = zs.filter(imUmkreis).sort(nachKm);
-  let h = kopfLeiste(["Blue Collar", "White Collar", "nur vollständig"]);
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nicht zugeordnet", "nur vollständig"]);
   h += kopfBearbeiter(daten.bestand || [], "Bearbeiter");
   h += `<h2>Matching · ${zs.length} Treffer im ${KM_MAX}-km-Umkreis</h2>
     <div class="hinweis">Automatisch aus Wohnort × Einsatzort gerechnet, nach Entfernung aufsteigend sortiert (genau 60 km zählt dazu). Stellen ohne gültige Entfernung stehen unten getrennt. „Vorschlag erstellen" schreibt die Kundenvorlage mit Profil und allen geprüften Angaben.</div>`;
@@ -83,10 +81,8 @@ function ansichtMatching() {
 /* ---------- Neukunden: eigenes Blatt ---------- */
 function ansichtNeukunden() {
   let zs = (daten.leads || []).filter(passtSuche);
-  if (filter === "Blue Collar") zs = zs.filter(istBlue);
-  if (filter === "White Collar") zs = zs.filter(z => !istBlue(z));
-  if (filter === "nur A-Kunden") zs = zs.filter(z => /^a/i.test(String(R(z, "Kunde A/B"))));
-  let h = kopfLeiste(["Blue Collar", "White Collar", "nur A-Kunden"]);
+  zs = zs.filter(passtFilter);
+  let h = kopfLeiste(["Blue Collar", "White Collar", "nicht zugeordnet", "nur A-Kunden"]);
   h += `<h2>Neukunden · ${zs.length} Leads (eigenes Blatt)</h2>
     <div class="hinweis">A-Kunden sprechen wir mit Namen an, B-Kunden haben oft nur eine info@-Adresse – dort kein Kaltkontakt (§ 7 UWG). Alle Eingaben hier bleiben getrennt von der Arbeitsliste.</div>`;
   zs.forEach(z => {
@@ -97,7 +93,7 @@ function ansichtNeukunden() {
       <div class="zeile">${esc(R(z, "Anlass / Stelle"))}${R(z, "Ansprechpartner") ? " · Ansprechpartner: " + esc(R(z, "Ansprechpartner")) : ""}${R(z, "Kontaktweg") ? " · " + esc(R(z, "Kontaktweg")) : ""}</div>
       ${tagsAus(z, R(z, "Bewerber"))}
       <div class="knoepfe">
-        ${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+        ${guterLink(R(z, "Link")) ? `<button class="k hell" data-url="${esc(guterLink(R(z, "Link")))}">Stellen-Link öffnen</button>` : ""}
         <button class="k ${r.kontakt ? "gruen" : "hell"}" data-nk="${esc(id)}|kontakt">${r.kontakt ? "✓ Kontakt aufgenommen" : "Kontakt aufgenommen"}</button>
         ${aKunde ? `<button class="k gruen" data-nkvor="${esc(id)}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}
         <button class="k hell" data-nke="${esc(id)}">Bearbeiten</button>

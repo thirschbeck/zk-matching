@@ -69,13 +69,15 @@ function blattProfil(name) {
     </div>
     <div class="hinweis">„Profil schreiben lassen" legt den Lebenslauf in die Warteschlange – das Profil steht dann hier, meist innerhalb einer Stunde.</div>
     <h3 style="margin-top:16px">Passende Stellen (automatisch, ${KM_MAX} km)</h3>
+    <div class="hinweis">${gewaehlteStelle(name) ? "Grundlage für Profil- und Kundentext: " + esc(R(gewaehlteStelle(name), "unsere offene Stelle")) : "Noch keine Stelle gewählt – Profil- und Kundentext nehmen erst nach der Auswahl eine Stelle."}</div>
     ${((imkreis.length ? imkreis.map(z => `<div class="karte"><div class="titel">${esc(R(z, "unsere offene Stelle"))} <span class="tag ok">${esc(R(z, "km"))} km</span></div>
       <div class="zeile">${esc(R(z, "Kunde (Bestand)"))} · ${esc(R(z, "Ort Einsatz"))} · Titelbezug ${esc(R(z, "Titelbezug"))}</div>
       <div class="knoepfe"><button class="k hell" data-link="${esc(R(z, "Kunde (Bestand)") + "|" + R(z, "unsere offene Stelle") + "|" + R(z, "Ort Einsatz"))}">Stelle & Link</button>
-      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`))}${kmUnklarListe.length ? `<div class="hinweis">Entfernung noch nicht geklärt: ${esc(kmUnklarListe.map(z => R(z, "unsere offene Stelle")).join(", "))}</div>` : ""}
+      <button class="k gruen" data-vor="${esc(kBest(z))}">Vorschlag erstellen</button>
+      <button class="k hell" data-stelle="${esc(kBest(z) + "|" + name)}">${gewaehlteStelle(name) && kBest(gewaehlteStelle(name)) === kBest(z) ? "✓ gewählte Stelle" : "Als Stelle wählen"}</button></div></div>`).join("") : `<div class="hinweis">Kein Treffer bei Bestandskunden im Umkreis.</div>`))}${kmUnklarListe.length ? `<div class="hinweis">Entfernung noch nicht geklärt: ${esc(kmUnklarListe.map(z => R(z, "unsere offene Stelle")).join(", "))}</div>` : ""}
     ${passt.leads.length ? `<h3>Neukunden mit passender Stelle</h3>` + passt.leads.map(z => `<div class="karte"><div class="titel">${esc(R(z, "Unternehmen (Neukunde)"))} <span class="tag ${/^a/i.test(String(R(z, "Kunde A/B"))) ? "ok" : "grau"}">${esc(R(z, "Kunde A/B"))}</span></div>
       <div class="zeile">${esc(R(z, "Anlass / Stelle"))} · Passung ${esc(R(z, "Passung"))}${R(z, "Ansprechpartner") ? " · " + esc(R(z, "Ansprechpartner")) : ""}</div>
-      <div class="knoepfe">${R(z, "Link") ? `<button class="k hell" data-url="${esc(R(z, "Link"))}">Stellen-Link öffnen</button>` : ""}
+      <div class="knoepfe">${guterLink(R(z, "Link")) ? `<button class="k hell" data-url="${esc(guterLink(R(z, "Link")))}">Stellen-Link öffnen</button>` : ""}
       ${/^a/i.test(String(R(z, "Kunde A/B"))) ? `<button class="k gruen" data-nkvor="${esc(kLead(z))}">Anschreiben erstellen</button>` : `<span class="tag grau">kein Kaltkontakt</span>`}</div></div>`).join("") : ""}
     <div class="knoepfe"><button class="k hell" data-h="zu">Schließen</button></div></div></div>`, () => bindProfil(name));
 }
@@ -93,7 +95,7 @@ function profilLesen(name) {
   return p;
 }
 function bindProfil(name) {
-  qa("[data-it]").forEach(b => b.onclick = () => { const p = pr(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); statusSpeichern(); oeffne(null); blattProfil(name); });
+  qa("[data-it]").forEach(b => b.onclick = async () => { const p = profilLesen(name), f = b.dataset.it; if (p[f]) delete p[f]; else p[f] = "ja"; p._t = Date.now(); await statusSpeichern(); oeffne(null); blattProfil(name); });
   q("#pr_cv").onchange = e => {
     const f = e.target.files[0]; if (!f) return;
     if (f.size > 2500000) { setFuss("Die Datei ist größer als 2,5 MB – bitte verkleinern."); return; }
@@ -121,8 +123,11 @@ function bindProfil(name) {
     const bin = Uint8Array.from(atob(inhalt.b64), c => c.charCodeAt(0));
     window.open(URL.createObjectURL(new Blob([bin], { type: inhalt.typ || "application/octet-stream" })), "_blank");
   };
-  q("[data-prs]").onclick = () => {
-    profilLesen(name); statusSpeichern(); setFuss("Profil gespeichert."); liste();
+  q("[data-prs]").onclick = async () => {
+    profilLesen(name);
+    const ok = await statusSpeichern();
+    setFuss(ok ? "Profil gespeichert." : "Speichern hat nicht geklappt – bitte noch einmal versuchen.");
+    if (ok) { oeffne(null); liste(); } else { blattProfil(name); }
   };
   q("[data-prf]").onclick = () => {
     const p = pr(name);

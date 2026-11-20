@@ -1,12 +1,12 @@
 /* ZK Stellenmatching · Service Worker: nur die Huelle cachen, Daten immer frisch */
-const CACHE = "zk-matching-v19";
+const CACHE = "zk-matching-v20";
 const HUELLE = ["./", "./index.html", "./zugaenge.js", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(HUELLE)).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.indexOf("zk-matching") === 0 && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", e => {
   const u = new URL(e.request.url);
