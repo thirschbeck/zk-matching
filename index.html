@@ -230,7 +230,7 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026b";
+const FASSUNG = "20.11.2026c";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
@@ -675,6 +675,10 @@ function blattProfil(name) {
     <input type="file" id="pr_cv" accept=".pdf,.doc,.docx,.rtf,.txt">
     <div class="hinweis" id="cvstand">${p.cv ? "hinterlegt: " + esc(p.cv.name) + " (" + Math.round((p.cv.groesse || 0) / 1024) + " KB, " + esc(p.cv.stand || "") + ")" : "kein Lebenslauf hinterlegt"}</div>
     ${p.cv ? `<div class="knoepfe"><button class="k hell" data-cv="1">Lebenslauf ansehen</button></div>` : ""}
+    ${p.cockpit ? `<label>Aus dem RecruitNow-Cockpit</label>
+    <div class="hinweis">Bearbeiter ${esc(p.cockpit.bearbeiter || "–")} · Niederlassung ${esc(p.cockpit.niederlassung || "–")} · Status ${esc(p.cockpit.status || "–")}<br>
+    Kontakt ${esc(p.cockpit.kontakt || "–")} · ${esc(p.cockpit.ort || "")}${p.cockpit.geboren ? " · geboren " + esc(p.cockpit.geboren) : ""}${p.cockpit.fuehrerschein ? " · Führerschein " + esc(p.cockpit.fuehrerschein) : ""}${p.cockpit.sprachen ? "<br>Sprachen: " + esc(p.cockpit.sprachen) : ""}${p.cockpit.rollen ? "<br>Rollen: " + esc(p.cockpit.rollen) : ""}${p.cockpit.lebenslauf_datei ? "<br>Lebenslauf im Cockpit: " + esc(p.cockpit.lebenslauf_datei) : ""}</div>
+    ${p.cockpit.quelle ? `<div class="knoepfe"><button class="k hell" data-ck="${esc(p.cockpit.quelle)}">Im Cockpit öffnen</button></div>` : ""}` : ""}
     <label>Profil für den Kunden (schreibt der Assistent aus dem Lebenslauf)</label>
     <textarea id="pr_profil" style="min-height:180px">${esc(p.profil || "")}</textarea>
     <div class="knoepfe">
@@ -727,6 +731,8 @@ function bindProfil(name) {
     fr.readAsDataURL(f);
   };
   const cvb = q("[data-cv]");
+  const ckb = q("[data-ck]");
+  if (ckb && ckb.dataset.ck) ckb.onclick = () => window.open(ckb.dataset.ck, "_blank");
   if (cvb) cvb.onclick = async () => {
     const inhalt = await cvHolen(name, sessionStorage.getItem("zk_pass"));
     if (!inhalt || !inhalt.b64) { setFuss("Lebenslauf nicht gefunden – bitte neu hochladen."); return; }
