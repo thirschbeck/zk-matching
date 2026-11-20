@@ -111,7 +111,7 @@ function bindProfil(name) {
   const ckb = q("[data-ck]");
   if (ckb && ckb.dataset.ck) ckb.onclick = () => window.open(ckb.dataset.ck, "_blank");
   if (cvb) cvb.onclick = async () => {
-    const inhalt = await cvHolen(name, sessionStorage.getItem("zk_pass"));
+    const inhalt = await cvHolen(name);
     if (!inhalt || !inhalt.b64) { setFuss("Lebenslauf nicht gefunden – bitte neu hochladen."); return; }
     const bin = Uint8Array.from(atob(inhalt.b64), c => c.charCodeAt(0));
     window.open(URL.createObjectURL(new Blob([bin], { type: inhalt.typ || "application/octet-stream" })), "_blank");
