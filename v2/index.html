@@ -169,6 +169,14 @@ async function anmelden(passwort) {
   neukunden = (n ? await entschluesseln(n, passwort).catch(() => null) : null) || { rows: {}, stand: 0 };
   neukunden.rows = neukunden.rows || {};
 }
+/* Mit dem abgeleiteten Schluessel oeffnen (ohne Passwort) */
+async function aufmachenMit(h, k) {
+  if (!h || !h.ct) return null;
+  try {
+    const klar = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64d(h.iv) }, k, b64d(h.ct));
+    return JSON.parse(new TextDecoder().decode(klar));
+  } catch (e) { return null; }
+}
 async function statusSpeichern() {
   status.stand = Date.now();
   /* Leere Profilzeilen gar nicht erst mitschleppen */
@@ -177,6 +185,30 @@ async function statusSpeichern() {
     const sinnvoll = Object.keys(p).some(x => x !== "_t" && p[x] !== null && p[x] !== "" && p[x] !== undefined);
     if (!sinnvoll) delete status.profil[k];
   });
+  /* Fremde Aenderungen retten: je Eintrag gewinnt der neuere Zeitstempel */
+  try {
+    const fern = await hole(URL_STATUS);
+    const fd = await aufmachenMit(fern, schluessel);
+    if (fd) {
+      const zeit = e => Number(e && e._t) || 0;
+      const mischen = (meins, fremd) => {
+        const aus = Object.assign({}, fremd || {});
+        Object.keys(meins || {}).forEach(k => {
+          const m = meins[k], f = (fremd || {})[k];
+          if (!f || zeit(m) >= zeit(f)) aus[k] = m;
+        });
+        return aus;
+      };
+      status.profil = mischen(status.profil, fd.profil);
+      if (status.rows && fd.rows) {
+        const rows = {};
+        Array.from(new Set(Object.keys(fd.rows).concat(Object.keys(status.rows)))).forEach(a => {
+          rows[a] = mischen(status.rows[a], fd.rows[a]);
+        });
+        status.rows = rows;
+      }
+    }
+  } catch (e) {}
   const ok = await lege(URL_STATUS, await verschluesseln(status, schluessel));
   setFuss(ok ? "Gespeichert " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "Speichern fehlgeschlagen – bitte nochmal.");
   return ok;
@@ -258,7 +290,7 @@ const FELDER = {
   leads: ["Region", "Blue/White", "Bewerber", "Zielrolle / Beruf", "Wohnort", "Unternehmen (Neukunde)", "Anlass / Stelle", "Passung", "Link", "Kontaktweg", "Kunde A/B", "Ansprechpartner", "Kontakt aufgenommen", "Ergebnis", "Notiz"]
 };
 const KM_MAX = 60;
-const FASSUNG = "20.11.2026e";
+const FASSUNG = "20.11.2026f";
 
 function setFuss(t) { const f = q("#fuss"); if (f) f.textContent = t; }
 function schluesselWert(z) { return R(z, "Bewerber") + " " + R(z, "Wohnort"); }
